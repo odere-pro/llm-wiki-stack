@@ -20,9 +20,6 @@ case "$BASENAME" in
   index.md|log.md|dashboard.md|_index.md) exit 0 ;;
 esac
 
-# Get the directory this file is in, relative to wiki/
-WIKI_DIR=$(echo "$FILE_PATH" | sed 's|.*/vault/wiki/||' | sed 's|/[^/]*$||')
-
 REMINDERS=""
 
 # Check if this file's folder has an _index.md

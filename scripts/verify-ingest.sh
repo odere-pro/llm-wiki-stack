@@ -202,6 +202,7 @@ while IFS= read -r index_file; do
     }
   ')
 
+  # shellcheck disable=SC2034  # Reserved for the spec §12 child_indexes drift check; parse kept so the check can be wired without re-deriving the awk.
   INDEX_CHILD_INDEXES=$(echo "$INDEX_FRONTMATTER" | awk '
     /^child_indexes:/ {
       if ($0 ~ /\[/) {
