@@ -10,9 +10,22 @@
 
 ## What it is
 
-A Claude Code plugin that turns an Obsidian vault into a maintained, provenance-tracked knowledge base following [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). The human curates sources; the plugin maintains the wiki; hooks enforce the schema at every tool-call boundary.
+A Claude Code plugin that turns an **Obsidian vault** into a maintained, provenance-tracked **knowledge base** following [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). The human curates sources; the plugin maintains the wiki; **hooks enforce the schema at every tool-call boundary**.
 
-The contract lives in [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md) and the schema lives in [`example-vault/CLAUDE.md`](./example-vault/CLAUDE.md). Every skill, agent, and hook in this plugin is bound to them.
+The entire system is **spec-driven**: the contract lives in [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md) and the authoritative schema lives in [`example-vault/CLAUDE.md`](./example-vault/CLAUDE.md). Every skill, agent, and hook binds to them. Canonical terminology is locked down by [`docs/VOCABULARY.md`](./docs/VOCABULARY.md) and enforced in CI.
+
+### Features
+
+- **Typed wiki pages** with YAML frontmatter — six page types (`source`, `entity`, `concept`, `synthesis`, `index`, `log`) and strict schema validation on every write.
+- **Provenance by construction** — every non-source page carries a `sources:` field with `[[wikilinks]]` back to immutable raw content under `raw/`. Plain strings are a lint error.
+- **Map of Content (MOC)** — per-folder `_index.md` and vault-level `wiki/index.md`, auto-maintained by the pipeline.
+- **Hook-enforced immutability** of `raw/` — `protect-raw.sh` blocks any attempt to rewrite a source.
+- **`SubagentStop` completion gates** — long-running ingest and lint-fix agents cannot leave the wiki in a half-written state.
+- **One-command pipeline** — `ingest → verify → lint-fix → synthesize` in a single run; stops on any drift.
+- **Cross-topic synthesis notes** with explicit `scope:` and `synthesis_type` (`comparison`, `theme`, `contradiction`, `gap`, `timeline`).
+- **Confidence discipline** — `confidence ≥ 0.8` requires two corroborating sources; `1.0` requires a direct quote.
+- **Obsidian-native** — works with Dataview, Templater, Web Clipper, and the graph view out of the box.
+- **Five-tier test harness** (Tier 0 static / Tier 1 Bats unit / Tier 2 smoke / Tier 3 release / Tier 4 adversarial).
 
 ## Why another one
 
@@ -35,7 +48,7 @@ Four layers. Each one catches a different class of failure.
 
 The long version lives in [`docs/architecture.md`](./docs/architecture.md).
 
-## Quick start
+## Installation
 
 ```
 /plugin marketplace add odere-pro/llm-wiki-stack
@@ -43,17 +56,17 @@ The long version lives in [`docs/architecture.md`](./docs/architecture.md).
 /llm-wiki-stack:llm-wiki
 ```
 
-The third command runs the onboarding wizard, which scaffolds a vault in your project by copying `example-vault/`, smoke-tests the install, and prints the next three things to do.
+The third command runs the **onboarding wizard**, which scaffolds a vault in your project by copying `example-vault/`, smoke-tests the install, and prints the next three things to do. See [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md) for the walkthrough.
 
 ## Operations
 
 The one verb you need to know is **the pipeline** — it runs ingest, verifies the result, lint-fixes any structural drift, and files a synthesis note if the run warrants one.
 
-| Verb         | Slash command                          | Notes                                                                                                                 |
-| ------------ | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **Pipeline** | `/llm-wiki-stack:llm-wiki-ingest-pipeline` | Default. Chains ingest → verify → lint-fix → synthesize.                                                          |
-| **Query**    | `/llm-wiki-stack:llm-wiki-query`       | Traversal starts from the vault MOC and topic per-folder MOCs; every answer cites `[[wikilinks]]` back to wiki pages. |
-| **Status**   | `/llm-wiki-stack:llm-wiki-status`      | One-command health check — exercises every hook path and reports green/red.                                           |
+| Verb         | Slash command                              | Notes                                                                                                                 |
+| ------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| **Pipeline** | `/llm-wiki-stack:llm-wiki-ingest-pipeline` | Default. Chains ingest → verify → lint-fix → synthesize.                                                              |
+| **Query**    | `/llm-wiki-stack:llm-wiki-query`           | Traversal starts from the vault MOC and topic per-folder MOCs; every answer cites `[[wikilinks]]` back to wiki pages. |
+| **Status**   | `/llm-wiki-stack:llm-wiki-status`          | One-command health check — exercises every hook path and reports green/red.                                           |
 
 Power-user skills for running the individual verbs: `llm-wiki-ingest`, `llm-wiki-lint`, `llm-wiki-fix`, `llm-wiki-synthesize`, `llm-wiki-index`. Contracts for each live in [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md) §8.
 
@@ -69,6 +82,28 @@ Three threats, one unenforceable boundary.
 - **MCP auth** — the plugin does not expose an MCP server. When it does, it will be scoped to the vault path.
 - **What it does not defend** — unsigned provenance, non-sandboxed hook scripts, LLM-opinion confidence scores. Full list in [`docs/security.md`](./docs/security.md).
 
+## Documentation
+
+Start with whichever doc matches your question:
+
+| Doc                                                                                      | Purpose                                                                                                    |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md)                                       | Reproducibility-grade system spec. Every contract an implementer needs.                                    |
+| [`docs/VOCABULARY.md`](./docs/VOCABULARY.md)                                             | Canonical term list. Technical vs. discoverability registers; banned strings; enforced by validate-docs.sh. |
+| [`docs/architecture.md`](./docs/architecture.md)                                         | Four-layer model explained in prose.                                                                        |
+| [`docs/security.md`](./docs/security.md)                                                 | Threat model, known limits, responsible-disclosure process.                                                |
+| [`docs/llm-wiki/index.md`](./docs/llm-wiki/index.md)                                     | User-facing entry point. Links out to the seven step-by-step guides.                                       |
+| [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md)           | Day 1 → Day 7 → Day 30 walkthrough.                                                                        |
+| [`docs/llm-wiki/02-create-new-knowledge-base.md`](./docs/llm-wiki/02-create-new-knowledge-base.md) | Scaffold a vault from the example.                                                                         |
+| [`docs/llm-wiki/03-update-existing.md`](./docs/llm-wiki/03-update-existing.md)           | Add sources, images, and batches.                                                                          |
+| [`docs/llm-wiki/04-review-validate-fix.md`](./docs/llm-wiki/04-review-validate-fix.md)   | Four levels of review — from spot-check to auto-repair.                                                    |
+| [`docs/llm-wiki/05-export-outputs.md`](./docs/llm-wiki/05-export-outputs.md)             | Compile reports, briefs, and ADRs from the wiki.                                                           |
+| [`docs/llm-wiki/06-check-the-dashboard.md`](./docs/llm-wiki/06-check-the-dashboard.md)   | The Dataview dashboard and what it tells you.                                                              |
+| [`docs/llm-wiki/07-query-the-wiki.md`](./docs/llm-wiki/07-query-the-wiki.md)             | Query and analyst-mode patterns.                                                                           |
+| [`tests/README.md`](./tests/README.md)                                                   | Test harness — tiers, fixtures, smoke, local runs.                                                         |
+| [`CHANGELOG.md`](./CHANGELOG.md)                                                         | Release log.                                                                                               |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md)                                                   | Contribution guide.                                                                                        |
+
 ## Credits
 
 - [Andrej Karpathy's LLM Wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — the pattern this implements.
@@ -80,10 +115,4 @@ Three threats, one unenforceable boundary.
 
 Licensed under [Apache 2.0](./LICENSE). See [`NOTICE`](./NOTICE) for a summary of bundled third-party code and [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md) for full license text. Not affiliated with Anthropic, Obsidian, or Andrej Karpathy — this is an independent implementation built on their public work.
 
-## Links
-
-- Author — [odere-pro on GitHub](https://github.com/odere-pro)
-- Architecture — [`docs/architecture.md`](./docs/architecture.md)
-- Security — [`docs/security.md`](./docs/security.md)
-- User guides — [`docs/llm-wiki/`](./docs/llm-wiki/index.md)
-- Schema — [`example-vault/CLAUDE.md`](./example-vault/CLAUDE.md)
+Author: [odere-pro on GitHub](https://github.com/odere-pro).
