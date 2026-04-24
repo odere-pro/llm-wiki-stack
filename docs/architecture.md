@@ -9,7 +9,7 @@ Most LLM-wiki implementations are one layer: a prompt and a folder convention. T
 | Layer                | Responsibility                                           | What lives here                                                        |
 | -------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
 | **1. Data**          | Immutable sources + wiki schema                          | `docs/vault-example/raw/`, `docs/vault-example/wiki/`, `docs/vault-example/CLAUDE.md` |
-| **2. Skills**        | Individual capabilities invoked by the human or an agent | `skills/` (11 skills)                                                  |
+| **2. Skills**        | Individual capabilities invoked by the human or an agent | `skills/` (13 skills)                                                  |
 | **3. Agents**        | Multi-step executors that orchestrate skills             | `agents/` (3 agents)                                                   |
 | **4. Orchestration** | Hooks, rules, provenance guards                          | `hooks/hooks.json`, `scripts/`, `rules/`                               |
 
@@ -19,7 +19,7 @@ Sources go into `raw/` and are never rewritten — the `protect-raw.sh` hook enf
 
 ### 2. Skills
 
-Each skill is a single-responsibility capability: `llm-wiki-ingest` ingests sources, `llm-wiki-query` answers questions, `llm-wiki-lint` audits structure, `llm-wiki-fix` repairs what lint reports, `llm-wiki-synthesize` writes cross-topic analyses, `llm-wiki-index` generates a top-level overview index across the vault, `obsidian-graph-colors` paints Obsidian's graph view. Skills are slash-command entry points; they do not know about each other. The plugin ships 11.
+Each skill is a single-responsibility capability: `llm-wiki-ingest` ingests sources, `llm-wiki-query` answers questions, `llm-wiki-lint` audits structure, `llm-wiki-fix` repairs what lint reports, `llm-wiki-synthesize` writes cross-topic analyses, `llm-wiki-index` generates a top-level overview index across the vault, `llm-wiki-markdown` exports a query answer as portable markdown into `vault/output/`, `obsidian-graph-colors` paints Obsidian's graph view. Skills are slash-command entry points; they do not know about each other. The plugin ships 13.
 
 ### 3. Agents
 

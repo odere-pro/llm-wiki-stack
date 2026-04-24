@@ -63,6 +63,7 @@ Formal contracts. Defined in `docs/vault-example/CLAUDE.md`; enforced by `valida
 | topic folder   | A folder under `wiki/` holding pages on one subject. Max nesting: four levels.                                                                                                                           |
 | MOC            | Map of Content. Established PKM term for a navigation page over a scope. Frontmatter `type: index`. Per-folder MOC is `_index.md`; vault MOC is `wiki/index.md`. Scope differs; the concept is the same. |
 | synthesis note | A page under `wiki/_synthesis/` with `type: synthesis`. Cross-topic analysis.                                                                                                                            |
+| portable markdown | GitHub-flavored markdown without Obsidian-only syntax (`[[wikilinks]]`, Dataview, callouts, block IDs). The output format produced by `llm-wiki-markdown` into `vault/output/`. Distinct from wiki pages, which use Obsidian-flavored markdown.                  |
 
 ### Architecture terms
 
@@ -73,7 +74,7 @@ The plugin's structure. Contracts in `docs/SPECIFICATION.md`.
 | llm-wiki-stack          | The plugin identifier. Lowercase, hyphenated. Used in headings and slash-command namespaces.   |
 | four-layer stack        | The architecture. Four layers, each catching a different class of failure.                     |
 | Layer 1 — Data          | The vault: raw content, wiki, vault schema. Passive — holds the material.                      |
-| Layer 2 — Skills        | Single-responsibility slash commands. Eleven ship.                                             |
+| Layer 2 — Skills        | Single-responsibility slash commands. Thirteen ship.                                           |
 | Layer 3 — Agents        | Multi-step executors composing skills. Three ship.                                             |
 | Layer 4 — Orchestration | Hooks, scripts, rules. Enforce the schema at every tool call.                                  |
 | skill                   | A capability under `skills/`. Entry point is `/llm-wiki-stack:<name>`.                         |
@@ -90,7 +91,7 @@ Plugin-authored skills and agents use the `llm-wiki-` prefix when the target is 
 
 Skills and agents share the same namespace (`/llm-wiki-stack:<name>`), so their names must be globally unique. The convention below ensures they never collide:
 
-- **Skills** — single verb or noun suffix: `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`.
+- **Skills** — single verb or noun suffix: `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`, `llm-wiki-markdown`.
 - **Agents** — compound suffix (verb+noun or role): `llm-wiki-ingest-pipeline`, `llm-wiki-lint-fix`, `llm-wiki-analyst`.
 
 | Name                       | Kind            | Meaning                                                                                                                                                   |
@@ -103,6 +104,7 @@ Skills and agents share the same namespace (`/llm-wiki-stack:<name>`), so their 
 | `llm-wiki-status`          | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
 | `llm-wiki-synthesize`      | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
 | `llm-wiki-index`           | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-markdown`        | Skill (Layer 2) | Plugin-authored. Single-noun skill name; renders a query answer as portable markdown into `vault/output/`.                                                |
 | `llm-wiki-ingest-pipeline` | Agent (Layer 3) | Plugin-authored. Compound suffix (`ingest` + `pipeline`) distinguishes it from the `llm-wiki-ingest` skill.                                               |
 | `llm-wiki-lint-fix`        | Agent (Layer 3) | Plugin-authored. Compound suffix (`lint` + `fix`) chains the two skill names.                                                                             |
 | `llm-wiki-analyst`         | Agent (Layer 3) | Plugin-authored. Role-noun suffix (`analyst`) — not a skill verb.                                                                                         |
@@ -125,6 +127,7 @@ Canonical names for the plugin's single-responsibility capabilities. Every entry
 | llm-wiki-status       | One-command health check. Exercises every hook path. Leaves the vault unchanged.                                                 |
 | llm-wiki-synthesize   | Writes a cross-topic synthesis note under `wiki/_synthesis/`.                                                                    |
 | llm-wiki-index        | Generates or refreshes the vault MOC at `wiki/index.md`.                                                                         |
+| llm-wiki-markdown     | Renders a query answer as portable markdown under `vault/output/`. Strips Obsidian-only syntax so the file is usable elsewhere.  |
 | obsidian-graph-colors | Applies per-topic colors to Obsidian's graph view. Plugin-authored.                                                              |
 | obsidian-markdown     | Obsidian-flavored markdown reference. MIT, kepano/obsidian-skills.                                                               |
 | obsidian-bases        | Obsidian Bases (database) reference. MIT, kepano/obsidian-skills.                                                                |
@@ -141,6 +144,7 @@ Lowercase in body prose; capitalize at the start of a heading. Each logs an entr
 | lint       | Audit the vault for structural drift. Reports errors, warnings, info.            |
 | fix        | Auto-repair what lint reports. Idempotent.                                       |
 | synthesize | Write a cross-topic synthesis note under `wiki/_synthesis/`.                     |
+| markdown   | Render a query answer as portable markdown under `vault/output/`.                |
 | status     | One-command health check. Exercises every hook path. Leaves the vault unchanged. |
 
 ### Operator concepts

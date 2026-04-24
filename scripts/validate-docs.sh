@@ -69,7 +69,7 @@ LAYER_DRIFT='\blayer [1-4]\b|\b(data|skills|agents|orchestration) layer\b'
 
 # Known skill and agent names — a bare /name reference (missing the
 # /llm-wiki-stack: prefix) signals a vocabulary violation.
-NAMESPACED_NAMES='llm-wiki-ingest-pipeline|llm-wiki-lint-fix|llm-wiki-analyst|llm-wiki-ingest|llm-wiki-query|llm-wiki-lint|llm-wiki-fix|llm-wiki-status|llm-wiki-synthesize|llm-wiki-index|llm-wiki|obsidian-graph-colors|obsidian-markdown|obsidian-bases|obsidian-cli'
+NAMESPACED_NAMES='llm-wiki-ingest-pipeline|llm-wiki-lint-fix|llm-wiki-analyst|llm-wiki-ingest|llm-wiki-query|llm-wiki-lint|llm-wiki-fix|llm-wiki-status|llm-wiki-synthesize|llm-wiki-index|llm-wiki-markdown|llm-wiki|obsidian-graph-colors|obsidian-markdown|obsidian-bases|obsidian-cli'
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 

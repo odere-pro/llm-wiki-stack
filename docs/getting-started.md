@@ -60,3 +60,13 @@ Or lint-fix on its own, any time after the wiki is populated:
 ```
 /llm-wiki-stack:llm-wiki-query what does the wiki say about <topic>?
 ```
+
+## 8. Export an answer as portable markdown
+
+```
+/llm-wiki-stack:llm-wiki-markdown what does the wiki say about <topic>?
+```
+
+Writes a portable markdown file (no `[[wikilinks]]`, no Dataview blocks) to
+`vault/output/<slug>.md` so you can paste it into a PR, an email, or any
+non-Obsidian doc tool.

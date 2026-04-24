@@ -93,7 +93,7 @@ A Claude Code plugin that turns an Obsidian vault into a maintained, provenance-
 
 ### Layer 2 — Skills
 
-Twelve single-responsibility capabilities. Each skill reads `raw/` and writes only to `wiki/` (`llm-wiki-synthesize` writes only to `wiki/_synthesis/`; `obsidian-graph-colors` writes only to `.obsidian/graph.json`). No skill knows about any other skill.
+Thirteen single-responsibility capabilities. Each skill reads `raw/` and writes only to `wiki/` (`llm-wiki-synthesize` writes only to `wiki/_synthesis/`; `llm-wiki-markdown` writes only to `vault/output/`; `obsidian-graph-colors` writes only to `.obsidian/graph.json`). No skill knows about any other skill.
 
 Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY_LICENSES.md`:
 
@@ -110,6 +110,7 @@ Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY
 | `llm-wiki-status`       | plugin-authored | One-command health check; exercises every hook path.                     |
 | `llm-wiki-synthesize`   | plugin-authored | Writes a cross-topic synthesis note.                                     |
 | `llm-wiki-index`        | plugin-authored | Generates or refreshes the vault MOC at `wiki/index.md`.                 |
+| `llm-wiki-markdown`     | plugin-authored | Renders a wiki query as portable markdown into `vault/output/`.          |
 | `obsidian-graph-colors` | plugin-authored | Applies per-topic colors to Obsidian's graph view.                       |
 | `obsidian-markdown`     | MIT, kepano     | Obsidian-flavored markdown reference.                                    |
 | `obsidian-bases`        | MIT, kepano     | Obsidian Bases (database) reference.                                     |
@@ -151,7 +152,7 @@ llm-wiki-stack/                         # plugin source (installed to the user's
 ├── .claude-plugin/
 │   ├── plugin.json                     # product version, description, keywords
 │   └── marketplace.json                # same-repo marketplace definition
-├── skills/                             # Layer 2 (12 skills)
+├── skills/                             # Layer 2 (13 skills)
 ├── agents/                             # Layer 3 (3 agents)
 ├── hooks/
 │   └── hooks.json                      # Layer 4 hook wiring
@@ -444,6 +445,15 @@ Refreshes the vault MOC.
 - **Write.** `wiki/index.md` only. Per-folder `_index.md` files are owned by the ingest workflow, not by this skill.
 - **Exit state.** `wiki/index.md` lists every top-level topic folder and every synthesis note. Ordering is stable across invocations (so repeated runs produce no diff unless the tree changed).
 - **Enforced by.** `PreToolUse` frontmatter validation on the single write.
+
+#### `llm-wiki-markdown`
+
+Runs a query and renders the answer as portable, GitHub-flavored markdown.
+
+- **Read.** Same input set as `llm-wiki-query` — schema, vault MOC, per-folder MOCs, candidate typed pages, and pages reached by following `[[wikilinks]]` one hop.
+- **Write.** A new file at `vault/output/<slug>.md` carrying the `generated_by`/`source_query`/`generated_at`/`sources` frontmatter, plus an append-only entry to `wiki/log.md` (`## [YYYY-MM-DD] markdown | <summary> → output/<slug>.md`). No writes to `wiki/` content.
+- **Exit state.** The output file contains no `[[wikilinks]]` in body prose, no Dataview blocks, and no Obsidian callouts. Every internal link resolves to a real wiki page; every entry in `sources:` resolves.
+- **Enforced by.** `verify-output.sh` (advisory) on the new file's frontmatter shape; `PreToolUse` raw-immutability and frontmatter checks on every write.
 
 ### Role E — Diagnostics
 
