@@ -5,6 +5,7 @@
     "MD033": false,
     "MD040": false,
     "MD041": false,
+    "MD060": false,
     "MD024": {
       "siblings_only": true
     },
@@ -19,6 +20,7 @@
     "node_modules",
     "tmp",
     "tests/test_helper",
+    "example-vault/raw",
     "example-vault/wiki/log.md"
   ]
 }

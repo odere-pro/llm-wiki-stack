@@ -28,12 +28,34 @@ fi
 # -- Tooling dependency check. ------------------------------------------------
 
 if ! command -v yq >/dev/null 2>&1; then
-  echo "[FAIL] yq not found. Install with: pip install yq"
+  echo "[FAIL] yq not found. Install with: pip install yq  (or: brew install yq)"
   exit 1
 fi
 
-echo "[smoke] yq: $(command -v yq)"
+# Detect yq flavor: mikefarah/yq (Go) v4 vs kislyuk/yq (Python wrapper around jq).
+# Python yq accepts `--yaml-output`; Go yq does not.
+YQ_FLAVOR=go
+if yq --yaml-output '.' /dev/null >/dev/null 2>&1; then
+  YQ_FLAVOR=python
+fi
+
+echo "[smoke] yq: $(command -v yq) (flavor: $YQ_FLAVOR)"
 echo "[smoke] claude: $(command -v claude)"
+
+# yq_validate <file>   → exit 0 iff the file is valid YAML
+# yq_sources <file>    → print one sources entry per line (empty if missing)
+if [ "$YQ_FLAVOR" = "python" ]; then
+  yq_validate() { yq --yaml-output '.' "$1" >/dev/null 2>&1; }
+  yq_sources() {
+    yq --raw-output '.sources // empty | if type == "array" then .[] else . end' "$1" 2>/dev/null || true
+  }
+else
+  yq_validate() { yq '.' "$1" >/dev/null 2>&1; }
+  yq_sources() {
+    # eval-all so an empty/missing `sources` yields nothing instead of an error
+    yq 'select(.sources != null) | .sources[]' "$1" 2>/dev/null || true
+  }
+fi
 
 # -- Stage 1: run each skill against the example vault. -----------------------
 
@@ -57,7 +79,7 @@ while IFS= read -r f; do
   # Extract frontmatter between first pair of --- lines.
   fm_file="$(mktemp)"
   awk 'NR==1 && /^---$/{n++; next} /^---$/{exit} n{print}' "$f" >"$fm_file"
-  if ! yq --yaml-output '.' "$fm_file" >/dev/null 2>&1; then
+  if ! yq_validate "$fm_file"; then
     echo "[smoke] FAIL: frontmatter not parseable in $f"
     fail=$((fail + 1))
   fi
@@ -74,12 +96,12 @@ bad=0
 while IFS= read -r f; do
   base="$(basename "$f")"
   case "$base" in
-    index.md|log.md|dashboard.md|_index.md) continue ;;
+    index.md | log.md | dashboard.md | _index.md) continue ;;
   esac
   # Pull the sources field via yq from the extracted frontmatter.
   fm_file="$(mktemp)"
   awk 'NR==1 && /^---$/{n++; next} /^---$/{exit} n{print}' "$f" >"$fm_file"
-  sources=$(yq --raw-output '.sources // empty | if type == "array" then .[] else . end' "$fm_file" 2>/dev/null || true)
+  sources=$(yq_sources "$fm_file")
   rm -f "$fm_file"
 
   # Empty or absent sources are allowed on source notes themselves.
