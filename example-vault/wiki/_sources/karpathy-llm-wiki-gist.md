@@ -24,7 +24,7 @@ confidence: 1.0
 - **Author:** Andrej Karpathy
 - **Publisher:** GitHub Gist
 - **Published:** 2026-02-01
-- **URL:** https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+- **URL:** <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
 
 ## Summary
 

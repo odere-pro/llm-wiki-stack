@@ -24,7 +24,7 @@ confidence: 1.0
 - **Author:** Obsidian
 - **Publisher:** Obsidian.md
 - **Published:** 2026-04-01
-- **URL:** https://help.obsidian.md/
+- **URL:** <https://help.obsidian.md/>
 
 ## Summary
 

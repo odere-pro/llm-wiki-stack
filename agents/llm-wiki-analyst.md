@@ -68,6 +68,7 @@ Generate a live dashboard (Dataview queries) or a static snapshot (markdown tabl
    - **Dataview dashboard** — write `.md` with `dataview` code blocks. Requires Obsidian plugin.
    - **Static snapshot** — read the wiki, compute metrics, write markdown tables with real data.
 3. Read all pages in scope. Extract frontmatter fields programmatically:
+
    ```bash
    find vault/wiki -name '*.md' -type f -exec awk '
      /^---$/{n++; next}
@@ -75,6 +76,7 @@ Generate a live dashboard (Dataview queries) or a static snapshot (markdown tabl
      n==2{nextfile}
    ' {} +
    ```
+
 4. Compute requested metrics. Standard metrics available:
    - **Coverage:** pages per topic, pages per type, source count
    - **Health:** orphan pages, broken links, stale pages, low confidence
@@ -117,6 +119,7 @@ Reconstruct a full document from scattered wiki pages. Writes a plain-markdown d
 6. Write to `vault/output/<slug>.md` as plain markdown. No frontmatter required; an H1 title suffices. Include `[[wikilinks]]` in the body to preserve traceability to wiki pages.
 
 **Document types and their purpose:**
+
 | Type | Use for | Typical length |
 |------|---------|---------------|
 | Brief | Executive summary, quick handoff | 1–2 pages |
@@ -134,6 +137,7 @@ Extract structured data from the wiki into tables, lists, or machine-readable fo
 
 1. Determine the extraction target: entities of a specific type, frontmatter fields, relationships, claims, dates, or custom patterns.
 2. Scan all pages in scope using frontmatter parsing:
+
    ```bash
    # Extract all entities with their type and sources
    find vault/wiki -name '*.md' -exec awk '
@@ -144,6 +148,7 @@ Extract structured data from the wiki into tables, lists, or machine-readable fo
      n==2{if(type=="entity") print title"|"etype"|"FILENAME; nextfile}
    ' {} +
    ```
+
 3. Present results in the requested format:
    - **Markdown table** — for human consumption, inline in conversation
    - **CSV** — write to `vault/output/` for external tools (git-ignored)
@@ -194,13 +199,17 @@ When locating relevant pages, use this priority order:
 1. **Index lookup** — read `vault/wiki/index.md`, match by title keywords
 2. **Index traversal** — read the relevant `_index.md`, follow children
 3. **Frontmatter grep** — search across all pages for matching tags, related links, or aliases:
+
    ```bash
    grep -rl 'tags:.*llm-wiki' vault/wiki/ --include='*.md'
    ```
+
 4. **Body text search** — search page content for keywords:
+
    ```bash
    grep -rl 'keyword' vault/wiki/ --include='*.md'
    ```
+
 5. **Source fallback** — if wiki pages lack detail, read source summaries in `vault/wiki/_sources/`
 6. **Raw source** — last resort. Read original documents in `vault/raw/`
 
@@ -219,6 +228,7 @@ When locating relevant pages, use this priority order:
 - Synthesis files go in `vault/wiki/_synthesis/` with full synthesis frontmatter
 - Never modify files in `vault/raw/`
 - Append to `vault/wiki/log.md` after every operation:
+
   ```
   ## [YYYY-MM-DD] query | Question summary
   ## [YYYY-MM-DD] dashboard | Dashboard name

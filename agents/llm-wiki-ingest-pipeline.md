@@ -65,7 +65,7 @@ For each source, write to `vault/wiki/_sources/<kebab-slug>.md` using the `sourc
 
 The topic-tree shape is the most consequential decision of the run. Errors here cascade into every page's `parent:` and `path:`, and into the Obsidian graph structure. Externalize the plan so the user can review or edit before any page is written.
 
-**1.4a — Write the plan**
+#### 1.4a — Write the plan
 
 Write to `vault/output/_pipeline-plan-YYYY-MM-DD.md` (git-ignored; no frontmatter required). Structure:
 
@@ -111,7 +111,7 @@ The plan must obey `vault/CLAUDE.md` folder-hierarchy rules (max depth 4, groupe
 - Blockers/decisions/project-tracking cluster into `blockers/` or `project/`.
 - Process concepts (flows, tiers, triggers) stay in the parent topic folder.
 
-**1.4b — Confirmation gate**
+#### 1.4b — Confirmation gate
 
 Report to the user:
 
@@ -140,7 +140,6 @@ Plan at vault/output/_pipeline-plan-YYYY-MM-DD.md. N sources left unprocessed.
 ### 1.5 Create or update wiki pages
 
 Execute the approved plan verbatim. If the plan and reality diverge (e.g., an existing page's content requires a different merge strategy than planned), note the divergence in the final report — do not silently restructure.
-
 
 For each entity and concept in the plan, follow the 13-step ingest rules in `vault/CLAUDE.md`. Key points:
 
