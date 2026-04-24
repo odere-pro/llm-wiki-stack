@@ -18,9 +18,6 @@
     // EditorConfig (.editorconfig)
     "EditorConfig.EditorConfig",
 
-    // Git
-    "eamodio.gitlens",
-
     // Spell checking (for markdown docs)
     "streetsidesoftware.code-spell-checker"
   ]
