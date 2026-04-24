@@ -1,10 +1,16 @@
 #!/bin/bash
 # Post-ingest verification script
 # Checks: duplicate index entries, sources field format, index consistency
-# Usage: .claude/scripts/verify-ingest.sh [vault-path]
+# Usage: scripts/verify-ingest.sh [--target <vault-path>]
 # Exit 0 = all clean, Exit 1 = issues found
 
-VAULT="${1:-vault}"
+VAULT="vault"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --target) VAULT="${2%/}"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 WIKI="$VAULT/wiki"
 INDEX="$WIKI/index.md"
 VAULT_CLAUDE_MD="$VAULT/CLAUDE.md"
