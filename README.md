@@ -85,13 +85,14 @@ Step-by-step walkthroughs: [`docs/llm-wiki/`](./docs/llm-wiki/index.md).
 
 ## Security model
 
-Three threats, one unenforceable boundary.
+Three threats, one unenforceable boundary. Each defense is test-backed; the test file is named inline.
 
-- **Prompt injection via ingested sources** — the schema is read before the source, not after it. `raw/` is immutable. Frontmatter-bound writes block malicious output shapes.
-- **Provenance drift** — every non-source page has a `sources` field; `confidence` is lower-bounded by the count of corroborating sources; `llm-wiki-lint-fix` repairs structural drift.
-- **Vault poisoning** — ingest is additive. A contradicting source adds to `contradicts`; it does not silently overwrite.
+- **Prompt injection via ingested sources** — the schema is read before the source, not after it. `raw/` is immutable (`tests/scripts/protect-raw.bats`). Frontmatter-bound writes block malicious output shapes (`tests/scripts/validate-frontmatter.bats`, `check-wikilinks.bats`). `SubagentStop` gates halt on unresolved ingest errors (`tests/scripts/subagent-ingest-gate.bats`, `subagent-lint-gate.bats`).
+- **Provenance drift** — every non-source page has a `sources` field; `confidence` is lower-bounded by the count of corroborating sources; `llm-wiki-lint-fix` repairs structural drift (`tests/scripts/verify-ingest.bats`, `tests/smoke/fresh-install.sh`).
+- **Vault poisoning** — ingest is additive. A contradicting source adds to `contradicts`; it does not silently overwrite. Every ingest lands a `wiki/log.md` entry for human audit (`tests/scripts/post-ingest-summary.bats`, `post-wiki-write.bats`).
 - **MCP auth** — the plugin does not expose an MCP server. When it does, it will be scoped to the vault path.
-- **What it does not defend** — unsigned provenance, non-sandboxed hook scripts, LLM-opinion confidence scores. Full list in [`docs/security.md`](./docs/security.md).
+- **Tier 4 adversarial** — weekly `.github/workflows/adversarial.yml`: `garak` and `osv-scanner` run live; the prompt-injection corpus replay is **stubbed pending fixture**.
+- **What it does not defend** — unsigned provenance, non-sandboxed hook scripts, LLM-opinion confidence scores. Full list with per-threat test mapping in [`docs/security.md`](./docs/security.md).
 
 ## Documentation
 

@@ -27,8 +27,8 @@ Long-form model: [`docs/architecture.md`](./docs/architecture.md).
 | Hook scripts                      | Spec §9; `hooks/hooks.json` (scripts and wiring are coupled); `tests/scripts/`                  |
 | Frontmatter                       | `example-vault/CLAUDE.md`; spec §6; `example-vault/_templates/`                                  |
 | User-facing prose                 | `docs/VOCABULARY.md`; `docs/llm-wiki/` for voice                                                 |
-| Security                          | `docs/security.md`; spec §14                                                                     |
-| Tests (Tier 0–4)                  | `tests/README.md`; spec §13                                                                      |
+| Security                          | `docs/security.md` (threat model with per-threat test mapping); spec §14; Tier 4 CI at `.github/workflows/adversarial.yml` (corpus replay stubbed) |
+| Tests (Tier 0–4)                  | `tests/README.md`; spec §13; hook tests in `tests/scripts/*.bats`                                |
 
 If an edit introduces a new concept, add the term to `docs/VOCABULARY.md` with a rationale first.
 
