@@ -190,4 +190,4 @@ each `.bats` file.
   assertions, no flaky wait-loops.
 - Tests must be idempotent. Mutations happen inside `$BATS_TEST_TMPDIR`.
 - Use absolute paths for fixtures: `$MINIMAL_VAULT_SRC`, `$JSON_FIXTURES_DIR`.
-- Never mutate files under the real `example-vault/`, `scripts/`, etc.
+- Never mutate files under the real `docs/vault-example/`, `scripts/`, etc.

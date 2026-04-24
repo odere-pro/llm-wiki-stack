@@ -2,7 +2,7 @@
 name: llm-wiki
 description: >
   Onboarding entry point. Scaffold a new LLM Wiki vault in the user's project by
-  copying from example-vault/, stamp the schema version, and orient the user.
+  copying from docs/vault-example/, stamp the schema version, and orient the user.
   Trigger when the user says "set up a wiki", "initialize the vault",
   "start a new LLM Wiki", "bootstrap the vault", or invokes
   /llm-wiki-stack:llm-wiki directly.
@@ -33,8 +33,8 @@ current state (schema version, page count, last log entry) and recommend
 
 Sealed inputs this skill may read:
 
-- The plugin's own `example-vault/` tree — the reference scaffold.
-- The plugin's `example-vault/CLAUDE.md` — the authoritative schema.
+- The plugin's own `docs/vault-example/` tree — the reference scaffold.
+- The plugin's `docs/vault-example/CLAUDE.md` — the authoritative schema.
 - The user's project root — to determine the target install path and detect a
   prior install.
 
@@ -45,32 +45,62 @@ This skill MUST NOT read `raw/` or `wiki/` content from any other source.
 Single write target: the user's project root. Everything this skill produces
 is contained to a new or empty `vault/` subdirectory.
 
-- Copy `example-vault/` verbatim into `<project>/vault/`.
+- Copy `docs/vault-example/` verbatim into `<project>/vault/`.
 - Confirm `<project>/vault/CLAUDE.md` declares `schema_version: 1`.
 - Do NOT populate `wiki/_sources/`, `wiki/_synthesis/`, or any topic folder
-  beyond what `example-vault/` already contains.
+  beyond what `docs/vault-example/` already contains.
 - Do NOT write to `<project>/` outside the new `vault/` subtree. In particular,
   do not touch the user's existing `README.md`, `.gitignore`, or any other
   top-level file.
 
+## Vault location
+
+The vault root is resolved in this order (first match wins):
+
+1. **`LLM_WIKI_VAULT` env var** — explicit override; good for local dev and CI.
+2. **Auto-detect** — scan the project (up to 4 levels deep) for a directory that
+   contains both `CLAUDE.md` (declaring `schema_version`) and a `wiki/`
+   subdirectory. Use the first match.
+3. **Default** — `docs/vault` relative to the project root.
+
+The shell scripts implement this via `scripts/resolve-vault.sh`. Claude should
+follow the same logic when deciding where to read or write vault files:
+
+```
+IF LLM_WIKI_VAULT is set → use that path
+ELSE run: find . -maxdepth 4 -name "CLAUDE.md" | xargs grep -l "schema_version"
+     pick the first match whose parent also contains a wiki/ directory
+ELSE use: docs/vault
+```
+
+`LLM_WIKI_VAULT` accepts relative paths (resolved from the project root) or
+absolute paths:
+
+```sh
+export LLM_WIKI_VAULT=docs/vault   # explicit relative — same as default
+export LLM_WIKI_VAULT=my-wiki      # custom vault name
+export LLM_WIKI_VAULT=/abs/path    # absolute, e.g. shared / multi-project vault
+```
+
 ## Workflow
 
-1. **Preflight.** Confirm `<project>/vault/` either does not exist or is empty.
+1. **Preflight.** Resolve `<vault>` from `LLM_WIKI_VAULT` (default: `docs/vault`).
+   Confirm `<project>/<vault>/` either does not exist or is empty.
    If it exists and is non-empty, print the current state and exit without
    writing.
-2. **Copy.** Copy the full `example-vault/` tree into `<project>/vault/`. Use
+2. **Copy.** Copy the full `docs/vault-example/` tree into `<project>/<vault>/`. Use
    `cp -R` or equivalent — preserve file modes.
-3. **Schema check.** Confirm `<project>/vault/CLAUDE.md` starts with
+3. **Schema check.** Confirm `<project>/<vault>/CLAUDE.md` starts with
    `schema_version: 1`. If the example vault drifts, correct the new file to
    match the specification.
-4. **Verify.** Invoke the plugin's `scripts/verify-ingest.sh` against the new
-   vault. Expect exit 0. Surface any non-zero result verbatim; do not attempt
-   to auto-repair the scaffold.
+4. **Verify.** Invoke `scripts/verify-ingest.sh --target <vault>` against the
+   new vault. Expect exit 0. Surface any non-zero result verbatim; do not
+   attempt to auto-repair the scaffold.
 5. **Orient.** Print a "you are here" summary:
    - The path to the new vault.
    - The schema version that was stamped.
    - Three suggested next steps, in order of increasing commitment:
-     1. Drop a source into `vault/raw/` and run
+     1. Drop a source into `<vault>/raw/` and run
         `/llm-wiki-stack:llm-wiki-ingest-pipeline`.
      2. Run `/llm-wiki-stack:llm-wiki-status` to confirm every hook fires.
      3. Read `docs/llm-wiki/01-getting-started.md` for the long-form guide.
@@ -87,8 +117,8 @@ is contained to a new or empty `vault/` subdirectory.
 
 Print exactly one of these three shapes:
 
-- `READY: vault scaffolded at <path>; schema version 1; verify-ingest clean.`
-- `SKIPPED: existing vault at <path>; <N> pages, last log <date>.`
+- `READY: vault scaffolded at <vault-path>; schema version 1; verify-ingest clean.`
+- `SKIPPED: existing vault at <vault-path>; <N> pages, last log <date>.`
 - `FAILED: <verify-ingest message>; no changes written.`
 
 The pipeline agent (`llm-wiki-ingest-pipeline`) looks for the `READY:` prefix when

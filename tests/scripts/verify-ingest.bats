@@ -24,7 +24,7 @@ teardown() {
 }
 
 @test "verify-ingest: passes on minimal-vault fixture" {
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 0 ]
   [[ "$output" == *"All checks passed"* ]]
@@ -35,7 +35,7 @@ teardown() {
   # Inject a duplicate [[Sample Entity]] link alongside the existing one.
   printf '\n\n- [[Sample Entity]] — duplicate entry that should trip the check.\n' >>"$index"
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 1 ]
   [[ "$output" == *"Duplicate"* ]]
@@ -49,7 +49,7 @@ teardown() {
   sed -i.bak 's|sources: \["\[\[Sample\]\]"\]|sources: ["Sample"]|' "$entity"
   rm -f "${entity}.bak"
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 1 ]
   [[ "$output" == *"Plain string in sources"* ]]
@@ -58,7 +58,7 @@ teardown() {
 @test "verify-ingest: fails on missing _index.md in topic folder" {
   rm -f "$FIXTURE_VAULT/wiki/topics/_index.md"
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 1 ]
   [[ "$output" == *"no _index.md"* ]]
@@ -91,7 +91,7 @@ confidence: 1.0
 Not referenced by any wiki page.
 MD
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   # Script treats orphan sources as warnings, not errors — exit 0 is correct.
   [ "$status" -eq 0 ]
@@ -102,7 +102,7 @@ MD
 @test "verify-ingest: fails when index.md missing" {
   rm -f "$FIXTURE_VAULT/wiki/index.md"
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 1 ]
   [[ "$output" == *"index.md not found"* ]]
@@ -121,9 +121,17 @@ MD
   ' "$index" >"$index.new"
   mv "$index.new" "$index"
 
-  run bash "$SCRIPTS_DIR/verify-ingest.sh" "$FIXTURE_VAULT"
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "$FIXTURE_VAULT"
 
   [ "$status" -eq 1 ]
   [[ "$output" == *"Index lists"* ]]
   [[ "$output" == *"Missing Page"* ]]
+}
+
+@test "verify-ingest: exits 1 with helpful message when vault dir missing" {
+  run bash "$SCRIPTS_DIR/verify-ingest.sh" --target "/nonexistent/vault/does-not-exist"
+
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"not found"* ]]
+  [[ "$output" == *"/nonexistent/vault/does-not-exist"* ]]
 }

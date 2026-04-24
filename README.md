@@ -23,7 +23,7 @@
 
 A Claude Code plugin that turns an **Obsidian vault** into a maintained, provenance-tracked **knowledge base** following [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). The human curates sources; the plugin maintains the wiki; **hooks enforce the schema at every tool-call boundary**.
 
-The entire system is **spec-driven**: the contract lives in [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md) and the authoritative schema lives in [`example-vault/CLAUDE.md`](./example-vault/CLAUDE.md). Every skill, agent, and hook binds to them. Canonical terminology is locked down by [`docs/VOCABULARY.md`](./docs/VOCABULARY.md) and enforced in CI.
+The entire system is **spec-driven**: the contract lives in [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md) and the authoritative schema lives in [`docs/vault-example/CLAUDE.md`](./docs/vault-example/CLAUDE.md). Every skill, agent, and hook binds to them. Canonical terminology is locked down by [`docs/VOCABULARY.md`](./docs/VOCABULARY.md) and enforced in CI.
 
 ### Features
 
@@ -52,7 +52,7 @@ Every other Claude-Code plugin is a toolbox. This one is a four-layer architectu
 
 Four layers. Each one catches a different class of failure.
 
-- **Layer 1 — Data** — `example-vault/` with an immutable `raw/` and an LLM-maintained `wiki/`, governed by the schema in [`example-vault/CLAUDE.md`](./example-vault/CLAUDE.md).
+- **Layer 1 — Data** — `docs/vault-example/` with an immutable `raw/` and an LLM-maintained `wiki/`, governed by the schema in [`docs/vault-example/CLAUDE.md`](./docs/vault-example/CLAUDE.md).
 - **Layer 2 — Skills** — 12 single-responsibility capabilities in [`skills/`](./skills/): `llm-wiki` (onboarding), `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`, `llm-wiki-fix`, `llm-wiki-status`, `llm-wiki-synthesize`, `llm-wiki-index`, `obsidian-graph-colors`, `obsidian-markdown`, `obsidian-bases`, `obsidian-cli`.
 - **Layer 3 — Agents** — 3 multi-step executors in [`agents/`](./agents/): `llm-wiki-ingest-pipeline`, `llm-wiki-lint-fix`, `llm-wiki-analyst`.
 - **Layer 4 — Orchestration** — hooks wired in [`hooks/hooks.json`](./hooks/hooks.json), scripts in [`scripts/`](./scripts/), path-scoped rules in [`rules/`](./rules/).
@@ -83,7 +83,7 @@ Then from a Claude Code session:
 /llm-wiki-stack:llm-wiki
 ```
 
-The third command in either path runs the **onboarding wizard**, which scaffolds a vault in your project by copying `example-vault/`, smoke-tests the install, and prints the next three things to do. See [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md) for the walkthrough.
+The third command in either path runs the **onboarding wizard**, which scaffolds a vault in your project by copying `docs/vault-example/`, smoke-tests the install, and prints the next three things to do. See [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md) for the walkthrough.
 
 ### Update / reinstall
 

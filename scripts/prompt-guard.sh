@@ -1,9 +1,11 @@
 #!/bin/bash
 # UserPromptSubmit: warn about common mistakes in user prompts
-# Respects LLM_WIKI_VAULT (default: docs/vault)
+# Vault resolved via LLM_WIKI_VAULT, auto-detection, or default (docs/vault)
 # Non-blocking — outputs warnings but never blocks the prompt
 
-VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
 VAULT_NAME=$(basename "$VAULT")
 
 INPUT=$(cat)

@@ -2,7 +2,9 @@
 # PreToolUse: blocks writes to vault/wiki/_sources/ when source_format != text
 # but attachment_path is missing or the referenced file does not exist.
 
-VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
 VAULT_NAME=$(basename "$VAULT")
 
 INPUT=$(cat)

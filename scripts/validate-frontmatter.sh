@@ -4,11 +4,17 @@
 # Default target: $LLM_WIKI_VAULT (fallback: docs/vault)
 # Runs on macOS (BSD) and Linux (GNU)
 
-VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
 TARGET_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --target) VAULT="${2%/}"; TARGET_SET=1; shift 2 ;;
+    --target)
+      VAULT="${2%/}"
+      TARGET_SET=1
+      shift 2
+      ;; # explicit CLI flag overrides auto-detection
     *) shift ;;
   esac
 done
@@ -38,12 +44,12 @@ validate_content() {
 
   local required
   case "$type" in
-    source)    required="source_type sources created updated status confidence" ;;
-    entity)    required="entity_type parent path sources created updated status confidence" ;;
-    concept)   required="parent path sources created updated status confidence" ;;
+    source) required="source_type sources created updated status confidence" ;;
+    entity) required="entity_type parent path sources created updated status confidence" ;;
+    concept) required="parent path sources created updated status confidence" ;;
     synthesis) required="synthesis_type sources created updated status confidence" ;;
-    index)     required="aliases created updated" ;;
-    log)       required="created updated" ;;
+    index) required="aliases created updated" ;;
+    log) required="created updated" ;;
     *)
       echo "Unknown type: ${type}. Allowed: source, entity, concept, synthesis, index, log"
       return
@@ -58,7 +64,7 @@ validate_content() {
   done
 
   case "$type" in
-    entity|concept|synthesis|index)
+    entity | concept | synthesis | index)
       local declared_path wiki_relative expected_path
       declared_path=$(echo "$frontmatter" | grep '^path:' | sed 's/^path: *//' | tr -d '"'"'" | xargs)
       if [ -n "$declared_path" ]; then
@@ -79,7 +85,7 @@ if [ "$TARGET_SET" -eq 1 ]; then
   WIKI="$VAULT/wiki"
   ERRORS=0
 
-  red()   { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
+  red() { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
   green() { printf '\033[0;32mOK:    %s\033[0m\n' "$1"; }
 
   while IFS= read -r -d '' file; do

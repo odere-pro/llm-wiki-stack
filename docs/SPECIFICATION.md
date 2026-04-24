@@ -2,21 +2,68 @@
 
 Authoritative description of `llm-wiki-stack`, version `0.1.0`, schema version `1`. This document is reproducibility-grade — every contract an implementer needs is here. The example vault demonstrates the schema; this file defines it.
 
-Terminology follows `docs/VOCABULARY.md`. Where this file and `example-vault/CLAUDE.md` diverge, **this file wins for schema intent** and the example vault is updated to match. Where a user guide and this file diverge, **this file wins** and the guide is corrected.
+Terminology follows `docs/VOCABULARY.md`. Where this file and `docs/vault-example/CLAUDE.md` diverge, **this file wins for schema intent** and the example vault is updated to match. Where a user guide and this file diverge, **this file wins** and the guide is corrected.
 
 ## 1. Identity
 
 - **Name.** `llm-wiki-stack`.
 - **Distribution.** Standalone Claude Code plugin. Installed via same-repo marketplace.
 - **License.** Apache 2.0. See `LICENSE` and `NOTICE`.
-- **Versioning.** Semantic versioning. `plugin.json` `version` is the product version. `schema_version` in `example-vault/CLAUDE.md` is the vault schema version, independent of product version.
+- **Versioning.** Semantic versioning. `plugin.json` `version` is the product version. `schema_version` in `docs/vault-example/CLAUDE.md` is the vault schema version, independent of product version.
 - **Homepage.** `https://github.com/odere-pro/llm-wiki-stack`.
 
-## 2. Problem statement
+## 2. Configuration
+
+### Vault root resolution
+
+All Layer 4 scripts source `scripts/resolve-vault.sh`, which applies this
+four-tier resolution (first match wins):
+
+| Priority | Source                                          | Behaviour                                                                                                                             |
+| -------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | `LLM_WIKI_VAULT` env var                        | Used as-is (relative or absolute). Explicit override — good for local dev and CI.                                                     |
+| 2        | `.claude/llm-wiki-stack/settings.json`          | `current_vault_path` field. Written by `scripts/set-vault.sh` or the plugin on session start.                                        |
+| 3        | Auto-detect                                     | Scan up to 4 levels deep for a `CLAUDE.md` declaring `schema_version` whose parent directory also contains `wiki/`. First match wins. |
+| 4        | Default                                         | `docs/vault` relative to the project root.                                                                                            |
+
+### `.claude/llm-wiki-stack/settings.json`
+
+Created automatically on `SessionStart` if it does not exist. Contains two
+fields — `default_vault_path` is recorded once and never changed; only
+`current_vault_path` is mutated when the user changes the vault root.
+
+```json
+{
+  "default_vault_path": "docs/vault",
+  "current_vault_path": "docs/vault"
+}
+```
+
+To change the active vault call `scripts/set-vault.sh <path>` or set
+`current_vault_path` directly in the file. To restore the default, copy
+`default_vault_path` back into `current_vault_path`.
+
+```sh
+# Priority-1 override — local dev and CI only; does not write settings.json
+export LLM_WIKI_VAULT=docs/vault   # explicit relative, same as default
+export LLM_WIKI_VAULT=/mnt/shared  # absolute for shared / multi-project vaults
+
+# Priority-2 — persistent per-project setting
+bash scripts/set-vault.sh my/project/vault
+```
+
+The `--target <path>` CLI flag accepted by `verify-ingest.sh`,
+`validate-frontmatter.sh`, and `check-wikilinks.sh` overrides all four tiers
+when running those scripts directly (not via hooks).
+
+Claude applies the same resolution when deciding where to read or write vault
+files — it need not be told the path explicitly if the vault is already present.
+
+## 3. Problem statement
 
 A Claude Code plugin that turns an Obsidian vault into a maintained, provenance-tracked knowledge base following Karpathy's LLM Wiki pattern. Four-layer stack — Data, Skills, Agents, Orchestration — with hook-enforced boundaries between them. The human curates sources; the LLM maintains the wiki; hooks enforce what neither side can be trusted to enforce on its own.
 
-## 3. Inputs and outputs
+## 4. Inputs and outputs
 
 ### Inputs
 
@@ -34,7 +81,7 @@ A Claude Code plugin that turns an Obsidian vault into a maintained, provenance-
 - **Dashboard** (`vault/wiki/dashboard.md`) — Dataview query page, rendered in Obsidian.
 - **Status reports** — printed to the terminal by lint and status commands.
 
-## 4. Four-layer stack contracts
+## 5. Four-layer stack contracts
 
 ### Layer 1 — Data
 
@@ -55,7 +102,7 @@ Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY
 
 | Skill                   | Provenance      | Responsibility                                                           |
 | ----------------------- | --------------- | ------------------------------------------------------------------------ |
-| `llm-wiki`              | plugin-authored | Onboarding wizard. Scaffolds `vault/` from `example-vault/` and orients. |
+| `llm-wiki`              | plugin-authored | Onboarding wizard. Scaffolds `vault/` from `docs/vault-example/` and orients. |
 | `llm-wiki-ingest`       | plugin-authored | Ingests one or more sources into the wiki.                               |
 | `llm-wiki-query`        | plugin-authored | Answers a query from the wiki with `[[wikilink]]` citations.             |
 | `llm-wiki-lint`         | plugin-authored | Audits the wiki for structural and provenance drift.                     |
@@ -97,7 +144,7 @@ Hooks, scripts, and path-scoped rules. Defines the contracts Layers 1–3 operat
 - **Invariants enforced here.** Every invariant in this spec.
 - **Failure modes caught here.** Frontmatter violations, cross-ref drift, `raw/` mutation, missing indexes, stale provenance.
 
-## 5. Directory layout
+## 6. Directory layout
 
 ```
 llm-wiki-stack/                         # plugin source (installed to the user's plugin cache)
@@ -110,7 +157,7 @@ llm-wiki-stack/                         # plugin source (installed to the user's
 │   └── hooks.json                      # Layer 4 hook wiring
 ├── scripts/                            # Layer 4 hook implementations
 ├── rules/                              # Layer 4 path-scoped rules
-├── example-vault/                      # Layer 1 reference vault + authoritative schema
+├── docs/vault-example/                      # Layer 1 reference vault + authoritative schema
 └── docs/                               # spec, vocabulary, architecture, security, user guides
 
 <user-project>/                         # the user's own project after install
@@ -142,7 +189,7 @@ llm-wiki-stack/                         # plugin source (installed to the user's
 
 **Depth cap.** Folder nesting inside `wiki/` MUST NOT exceed four levels. `llm-wiki-lint` flags violations.
 
-## 6. Frontmatter schema
+## 7. Frontmatter schema
 
 Every wiki page carries YAML frontmatter. The `type` field drives every operation — read it first.
 
@@ -304,7 +351,7 @@ updated: 2026-04-18
 ---
 ```
 
-## 7. MOCs (per-folder and vault)
+## 8. MOCs (per-folder and vault)
 
 Every folder under `wiki/` contains exactly one **per-folder MOC** (file: `_index.md`). The **vault MOC** lives at `wiki/index.md` (no underscore prefix). Both carry `type: index` frontmatter — the shared schema value — but play distinct roles.
 
@@ -314,7 +361,7 @@ Every folder under `wiki/` contains exactly one **per-folder MOC** (file: `_inde
 - **`child_indexes`** — the per-folder MOC of every direct subfolder.
 - **Auto-update contract** — ingest and lint-fix maintain `children` and `child_indexes` on every write to the folder. A page added without its per-folder MOC updated is a lint error.
 
-## 8. Command contracts
+## 9. Command contracts
 
 Every slash command is `/llm-wiki-stack:<name>`. Each skill contract is a triple: **what must be true before invocation**, **what must be true after**, and **which hooks enforce the gap between them**. Skills are grouped below by the role they play in a session, not by alphabetical order.
 
@@ -324,8 +371,8 @@ Every slash command is `/llm-wiki-stack:<name>`. Each skill contract is a triple
 
 The onboarding entry point. Run once per new vault.
 
-- **Read.** `example-vault/` (reference vault); plugin config; the user's project root.
-- **Write.** `vault/` scaffolded from `example-vault/`, including `vault/CLAUDE.md` with `schema_version: 1`.
+- **Read.** `docs/vault-example/` (reference vault); plugin config; the user's project root.
+- **Write.** `vault/` scaffolded from `docs/vault-example/`, including `vault/CLAUDE.md` with `schema_version: 1`.
 - **Exit state.** `verify-ingest.sh` exits 0 against the new vault. A "you are here" summary prints to the terminal pointing the user at `/llm-wiki-stack:llm-wiki-ingest-pipeline` as the next step.
 - **Enforced by.** `SessionStart` schema-reminder preamble fires on first invocation. `PreToolUse` frontmatter validation catches any malformed template copy.
 
@@ -409,7 +456,7 @@ One-command health check. Must leave the vault unchanged.
 - **Exit state.** A pass/fail report per hook path: dependency check, `SessionStart` preamble, `PreToolUse` frontmatter block, `PreToolUse` raw-immutability block, `PostToolUse` reminder, `SubagentStop` ingest verifier. Exit code 0 iff every line is green.
 - **Enforced by.** The skill asserts its own non-mutation invariant by comparing `git status` before and after.
 
-## 9. Hook catalog
+## 10. Hook catalog
 
 From `hooks/hooks.json`. Every hook is one of: blocking (exit code 2 aborts the tool call), advisory (prints, does not abort), informational (preamble only).
 
@@ -433,7 +480,7 @@ Planned additions (Phase D):
 | `SessionStart`                     | `check-deps.sh`    | blocking | Verifies `jq`, `bash >= 3.2`, hook files readable, scripts executable. |
 | `PostToolUse` Write/Edit on `*.md` | `validate-docs.sh` | advisory | Enforces vocabulary.                                                   |
 
-## 10. Agent contracts
+## 11. Agent contracts
 
 ### `llm-wiki-ingest-pipeline`
 
@@ -451,9 +498,9 @@ Planned additions (Phase D):
 - **Chains.** query → (optionally) synthesize.
 - **Guarantees.** Answers carry `[[wikilink]]` citations. No hallucinated page titles; every citation resolves.
 
-## 11. Schema versioning
+## 12. Schema versioning
 
-- `example-vault/CLAUDE.md` declares `schema_version: <int>` at the top of its frontmatter.
+- `docs/vault-example/CLAUDE.md` declares `schema_version: <int>` at the top of its frontmatter.
 - `.claude-plugin/plugin.json` declares `supported_schema_versions: [<int>, ...]`.
 - `scripts/verify-ingest.sh` reads the vault's `schema_version` and refuses to run if it is not in the supported list. Exit code 1 with a migration hint.
 - **Bump rules.**
@@ -463,7 +510,7 @@ Planned additions (Phase D):
 
 Older pre-versioning vaults are not migrated in place. The release notes document the manual rename.
 
-## 12. Lint rules
+## 13. Lint rules
 
 `llm-wiki-lint` scans for:
 
@@ -483,7 +530,7 @@ Older pre-versioning vaults are not migrated in place. The release notes documen
 - **Plain-string sources** — `sources:` entries that are not `[[wikilinks]]`. Error.
 - **Banned frontmatter values** — `type: moc`, references to `_MOC.md`. Error.
 
-## 13. Test contracts
+## 14. Test contracts
 
 Five tiers, per `docs/VOCABULARY.md` technical terminology.
 
@@ -495,7 +542,7 @@ Five tiers, per `docs/VOCABULARY.md` technical terminology.
 
 Each tier's assertions are a contract: a PR that breaks a Tier 0–2 assertion does not merge.
 
-## 14. Security model
+## 15. Security model
 
 - **Prompt injection via ingested sources.** The schema is read before the source, not after it. `raw/` is immutable. Frontmatter-bound writes block malicious output shapes. `prompt-guard.sh` inspects user prompts for patterns that invite schema violations.
 - **Provenance drift.** Every non-source page has a `sources:` field. `confidence` is lower-bounded by the number of corroborating sources. `llm-wiki-lint-fix` repairs structural drift between pages and their indexes.
@@ -504,7 +551,7 @@ Each tier's assertions are a contract: a PR that breaks a Tier 0–2 assertion d
 - **MCP auth.** The plugin exposes no MCP server. If it does in future, scope is limited to the vault path.
 - **What it does not defend.** Unsigned provenance. Non-sandboxed hook scripts — hooks run with user privileges. LLM-opinion confidence scores (the model's confidence is not audited; the `confidence:` field is a scoring convention, not a truth signal).
 
-## 15. Non-goals
+## 16. Non-goals
 
 - Replace legal counsel, compliance review, or professional judgment of source trustworthiness.
 - Manage secrets. `.gitignore` excludes standard secret paths but the plugin is not a secrets vault.
@@ -513,7 +560,7 @@ Each tier's assertions are a contract: a PR that breaks a Tier 0–2 assertion d
 - Support vaults not backed by the local filesystem.
 - Provide a hosted service.
 
-## 16. Versioning
+## 17. Versioning
 
 - This specification follows semantic versioning: `MAJOR.MINOR.PATCH`.
 - **Major** — any contract change that could invalidate an existing implementation: removing a section, changing a guarantee, breaking a schema field.

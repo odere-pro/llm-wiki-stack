@@ -3,11 +3,17 @@
 # Usage (CLI): scripts/check-wikilinks.sh [--target <vault-path>]
 # Default target: $LLM_WIKI_VAULT (fallback: docs/vault)
 
-VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
 TARGET_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --target) VAULT="${2%/}"; TARGET_SET=1; shift 2 ;;
+    --target)
+      VAULT="${2%/}"
+      TARGET_SET=1
+      shift 2
+      ;; # explicit CLI flag overrides auto-detection
     *) shift ;;
   esac
 done
@@ -34,7 +40,7 @@ if [ "$TARGET_SET" -eq 1 ]; then
   WIKI="$VAULT/wiki"
   ERRORS=0
 
-  red()   { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
+  red() { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
   green() { printf '\033[0;32mOK:    %s\033[0m\n' "$1"; }
 
   while IFS= read -r -d '' file; do

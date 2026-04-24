@@ -50,7 +50,7 @@ setup() {
 {"tool_name":"Write","tool_input":{"file_path":"$existing","content":"overwrite"}}
 EOF
 )
-  run bash -c "printf '%s' '$json' | bash '$REPO_ROOT/scripts/protect-raw.sh'"
+  run bash -c "export LLM_WIKI_VAULT=vault; printf '%s' '$json' | bash '$REPO_ROOT/scripts/protect-raw.sh'"
 
   [ "$status" -eq 0 ]
   [[ "$output" == *'"decision":"block"'* ]]

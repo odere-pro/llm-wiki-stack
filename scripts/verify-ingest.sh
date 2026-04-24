@@ -4,10 +4,15 @@
 # Usage: scripts/verify-ingest.sh [--target <vault-path>]
 # Exit 0 = all clean, Exit 1 = issues found
 
-VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
 while [ $# -gt 0 ]; do
   case "$1" in
-    --target) VAULT="${2%/}"; shift 2 ;;
+    --target)
+      VAULT="${2%/}"
+      shift 2
+      ;; # explicit CLI flag overrides auto-detection
     *) shift ;;
   esac
 done
@@ -23,6 +28,12 @@ red() { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
 yellow() { printf '\033[0;33mWARN:  %s\033[0m\n' "$1"; }
 green() { printf '\033[0;32mOK:    %s\033[0m\n' "$1"; }
 header() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
+
+if [ ! -d "$VAULT" ]; then
+  red "Vault directory not found at '$VAULT'"
+  printf 'Run /llm-wiki-stack:llm-wiki to initialise, or set a different path: bash scripts/set-vault.sh <path>\n'
+  exit 1
+fi
 
 # ──────────────────────────────────────────────
 # CHECK 0: schema_version

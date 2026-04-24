@@ -13,15 +13,14 @@ esac
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 SCRIPT="${CLAUDE_PLUGIN_ROOT}/scripts/verify-ingest.sh"
 
-# Resolve vault: absolute path is used as-is; relative path resolves from project root
-if [ -n "$LLM_WIKI_VAULT" ]; then
-  case "$LLM_WIKI_VAULT" in
-    /*) VAULT="$LLM_WIKI_VAULT" ;;
-    *)  VAULT="$PROJECT_DIR/$LLM_WIKI_VAULT" ;;
-  esac
-else
-  VAULT="$PROJECT_DIR/docs/vault"
-fi
+# shellcheck source=resolve-vault.sh
+source "$(dirname "$0")/resolve-vault.sh"
+VAULT=$(resolve_vault)
+# Absolutize so verify-ingest.sh works regardless of its own cwd
+case "$VAULT" in
+  /*) ;;
+  *) VAULT="$PROJECT_DIR/$VAULT" ;;
+esac
 
 if [ ! -x "$SCRIPT" ] || [ ! -d "$VAULT" ]; then
   exit 0

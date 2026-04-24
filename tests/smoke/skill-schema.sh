@@ -2,7 +2,7 @@
 # tests/smoke/skill-schema.sh — Tier 2 smoke test.
 #
 # Runs each Layer 2 skill (ingest, lint, fix, synthesize) against the
-# example-vault fixture and asserts that every output file has:
+# vault-example fixture and asserts that every output file has:
 #   - valid YAML frontmatter (parseable via `yq`)
 #   - a `sources:` field holding either `[]` or a list of `[[wikilinks]]`
 #
@@ -61,7 +61,7 @@ fi
 
 TMP_VAULT="$(mktemp -d -t skill-schema-smoke.XXXXXX)"
 trap 'rm -rf "$TMP_VAULT"' EXIT
-cp -R "$REPO_ROOT/example-vault/." "$TMP_VAULT/"
+cp -R "$REPO_ROOT/docs/vault-example/." "$TMP_VAULT/"
 echo "[smoke] Scratch vault: $TMP_VAULT"
 
 # STUB: invoke each skill via `claude -p`. Fill in during Phase E.

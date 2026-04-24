@@ -2,7 +2,7 @@
 
 A wiki built by an LLM from human-curated sources is a soft target. This document names the adversaries, says what the four-layer model prevents, and is honest about what it does not.
 
-**How to read this doc alongside the codebase.** Each threat below names the defense *and* the tests that exercise it. The current test coverage lives at:
+**How to read this doc alongside the codebase.** Each threat below names the defense _and_ the tests that exercise it. The current test coverage lives at:
 
 - **Tier 1 (Bats unit)** — `tests/scripts/*.bats`. One `.bats` file per hook/script. Run via `bash tests/run-tests.sh tier1`.
 - **Tier 2 (smoke)** — `tests/smoke/fresh-install.sh`, `tests/smoke/skill-schema.sh`. Exercise an end-to-end ingest against a fixture. Run via `bash tests/run-tests.sh tier2`.
@@ -59,7 +59,7 @@ See `docs/SPECIFICATION.md §13` for the full tier contract and `tests/README.md
 
 ## 4. MCP auth boundaries
 
-The plugin does not, today, expose its own MCP server. The only MCP integrations users may enable are general-purpose ones they configure in their own Claude Code settings. When this plugin adds an MCP server in a future version, it will be scoped read-only to `example-vault/` and the user's configured vault path — never the wider filesystem.
+The plugin does not, today, expose its own MCP server. The only MCP integrations users may enable are general-purpose ones they configure in their own Claude Code settings. When this plugin adds an MCP server in a future version, it will be scoped read-only to `docs/vault-example/` and the user's configured vault path — never the wider filesystem.
 
 If you install this plugin alongside MCP servers that provide filesystem, git, or shell access, the combined attack surface is _theirs_, not ours. Audit MCP configurations separately.
 

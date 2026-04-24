@@ -45,7 +45,7 @@ This file is under semver along with the schema. Additions are a minor bump; ren
 
 ### Schema terms
 
-Formal contracts. Defined in `example-vault/CLAUDE.md`; enforced by `validate-frontmatter.sh` and `verify-ingest.sh`.
+Formal contracts. Defined in `docs/vault-example/CLAUDE.md`; enforced by `validate-frontmatter.sh` and `verify-ingest.sh`.
 
 | Term           | Description                                                                                                                                                                                              |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -55,7 +55,7 @@ Formal contracts. Defined in `example-vault/CLAUDE.md`; enforced by `validate-fr
 | type           | Frontmatter field naming a page's category. One of `source`, `entity`, `concept`, `synthesis`, `index`, `log`. The primary filter.                                                                       |
 | sources        | Frontmatter field listing a page's citations. Required on every non-source page. List of `[[wikilinks]]` into the sources folder (`_sources/`). Plain strings are a lint error.                          |
 | vault          | The user's knowledge directory. Holds raw content, wiki, and the vault schema. On disk: project root.                                                                                                    |
-| example vault  | The populated reference vault in this repo, at `example-vault/`. The wizard copies it into the user's project.                                                                                           |
+| example vault  | The populated reference vault in this repo, at `docs/vault-example/`. The wizard copies it into the user's project.                                                                                           |
 | raw content    | Immutable source material. On disk: `raw/`. Writes blocked by `protect-raw.sh`.                                                                                                                          |
 | wiki           | LLM-maintained typed pages. On disk: `wiki/`. Every page cites at least one source.                                                                                                                      |
 | source         | One piece of raw content. One file under `raw/`. Immutable.                                                                                                                                              |
@@ -93,23 +93,23 @@ Skills and agents share the same namespace (`/llm-wiki-stack:<name>`), so their 
 - **Skills** — single verb or noun suffix: `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`.
 - **Agents** — compound suffix (verb+noun or role): `llm-wiki-ingest-pipeline`, `llm-wiki-lint-fix`, `llm-wiki-analyst`.
 
-| Name                       | Kind              | Meaning                                                                                                                                                   |
-| -------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `llm-wiki`                 | Skill (Layer 2)   | The onboarding entry-point skill. Disambiguate from the plugin identifier by always using the `/llm-wiki-stack:llm-wiki` command form in technical prose. |
-| `llm-wiki-ingest`          | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-query`           | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-lint`            | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-fix`             | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-status`          | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-synthesize`      | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-index`           | Skill (Layer 2)   | Plugin-authored. Single-verb skill name.                                                                                                                  |
-| `llm-wiki-ingest-pipeline` | Agent (Layer 3)   | Plugin-authored. Compound suffix (`ingest` + `pipeline`) distinguishes it from the `llm-wiki-ingest` skill.                                               |
-| `llm-wiki-lint-fix`        | Agent (Layer 3)   | Plugin-authored. Compound suffix (`lint` + `fix`) chains the two skill names.                                                                             |
-| `llm-wiki-analyst`         | Agent (Layer 3)   | Plugin-authored. Role-noun suffix (`analyst`) — not a skill verb.                                                                                         |
-| `obsidian-graph-colors`    | Skill (Layer 2)   | Plugin-authored. `obsidian-` prefix signals the target (Obsidian's graph plugin), not third-party provenance.                                             |
-| `obsidian-markdown`        | Skill (Layer 2)   | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
-| `obsidian-bases`           | Skill (Layer 2)   | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
-| `obsidian-cli`             | Skill (Layer 2)   | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
+| Name                       | Kind            | Meaning                                                                                                                                                   |
+| -------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `llm-wiki`                 | Skill (Layer 2) | The onboarding entry-point skill. Disambiguate from the plugin identifier by always using the `/llm-wiki-stack:llm-wiki` command form in technical prose. |
+| `llm-wiki-ingest`          | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-query`           | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-lint`            | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-fix`             | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-status`          | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-synthesize`      | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-index`           | Skill (Layer 2) | Plugin-authored. Single-verb skill name.                                                                                                                  |
+| `llm-wiki-ingest-pipeline` | Agent (Layer 3) | Plugin-authored. Compound suffix (`ingest` + `pipeline`) distinguishes it from the `llm-wiki-ingest` skill.                                               |
+| `llm-wiki-lint-fix`        | Agent (Layer 3) | Plugin-authored. Compound suffix (`lint` + `fix`) chains the two skill names.                                                                             |
+| `llm-wiki-analyst`         | Agent (Layer 3) | Plugin-authored. Role-noun suffix (`analyst`) — not a skill verb.                                                                                         |
+| `obsidian-graph-colors`    | Skill (Layer 2) | Plugin-authored. `obsidian-` prefix signals the target (Obsidian's graph plugin), not third-party provenance.                                             |
+| `obsidian-markdown`        | Skill (Layer 2) | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
+| `obsidian-bases`           | Skill (Layer 2) | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
+| `obsidian-cli`             | Skill (Layer 2) | Third-party. MIT, `kepano/obsidian-skills`. Kept under original name and license; attribution in `NOTICE`.                                                |
 
 ### Layer 2 skills
 
@@ -117,7 +117,7 @@ Canonical names for the plugin's single-responsibility capabilities. Every entry
 
 | Term                  | Description                                                                                                                      |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| llm-wiki              | Onboarding/init skill. Scaffolds `vault/` from `example-vault/` and orients the user. Slash command: `/llm-wiki-stack:llm-wiki`. |
+| llm-wiki              | Onboarding/init skill. Scaffolds `vault/` from `docs/vault-example/` and orients the user. Slash command: `/llm-wiki-stack:llm-wiki`. |
 | llm-wiki-ingest       | Processes one or more sources under `raw/` into wiki pages.                                                                      |
 | llm-wiki-query        | Answers a question from the wiki with `[[wikilink]]` citations.                                                                  |
 | llm-wiki-lint         | Audits the wiki for structural and provenance drift.                                                                             |
@@ -157,7 +157,7 @@ Lowercase in body prose; capitalize at the start of a heading. Each logs an entr
 
 | Term                 | Description                                                                                                                            |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| vault schema         | `vault/CLAUDE.md`. The authoritative schema; read at the start of every operation. Mirrored by `example-vault/CLAUDE.md` in this repo. |
+| vault schema         | `vault/CLAUDE.md`. The authoritative schema; read at the start of every operation. Mirrored by `docs/vault-example/CLAUDE.md` in this repo. |
 | repo guide           | The repo root `CLAUDE.md`. A map for LLMs editing this repo. Not the schema.                                                           |
 | specification        | `docs/SPECIFICATION.md`. Reproducibility-grade contract. 16 sections.                                                                  |
 | NOTICE               | `NOTICE` at the repo root. Attribution for bundled third-party code. Apache-2.0 requires preservation.                                 |
