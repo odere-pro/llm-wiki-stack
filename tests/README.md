@@ -54,11 +54,36 @@ tests/
 
 ## Running locally
 
-### Prerequisites
+### Quick start
+
+Two scripts drive the local workflow:
+
+```bash
+bash tests/install-deps.sh       # install all dev and test dependencies
+bash tests/run-tests.sh          # run Tier 0 (static) + Tier 1 (Bats)
+```
+
+Both are idempotent and detect macOS (brew) or Linux (apt) automatically.
+
+Useful flags:
+
+```bash
+bash tests/install-deps.sh --check      # report status; no installs
+bash tests/install-deps.sh --dry-run    # print what would be installed
+
+bash tests/run-tests.sh tier0           # just Tier 0 (shellcheck, shfmt, markdownlint, lychee, gitleaks, validate-docs)
+bash tests/run-tests.sh tier1           # just Tier 1 (bats --recursive tests/scripts/)
+bash tests/run-tests.sh tier2           # Tier 2 smoke (self-skips without `claude` CLI)
+bash tests/run-tests.sh all             # all three tiers
+bash tests/run-tests.sh --list all      # print the commands without running them
+```
+
+### Manual prerequisites (if you prefer to install yourself)
 
 - `bats-core` (the test runner)
 - `jq` (used by every hook script and most tests)
 - `git` (used by `tests/scripts/validate-docs.bats` for isolated repos)
+- Optional Tier 0 tools: `shellcheck`, `shfmt`, `markdownlint-cli2`, `lychee`, `gitleaks`, plus `yq` and `check-jsonschema` via pip.
 
 Install on macOS:
 
@@ -74,7 +99,8 @@ sudo apt-get install -y bats jq
 
 The Bats assertion helpers (`bats-assert`, `bats-support`, `bats-file`) are
 **not checked into git**. `.github/workflows/ci.yml` clones them on CI via
-`git clone --depth 1 …` into `tests/test_helper/`. For local runs:
+`git clone --depth 1 …` into `tests/test_helper/`. `install-deps.sh` does the
+same for local runs; for manual setup:
 
 ```bash
 mkdir -p tests/test_helper
@@ -84,19 +110,14 @@ for h in bats-support bats-assert bats-file; do
 done
 ```
 
-### Run the whole unit-test tier
-
-```bash
-bats --recursive tests/scripts/
-```
-
-### Run one file
+### Run a single Bats file or test
 
 ```bash
 bats tests/scripts/verify-ingest.bats
+bats --filter "blocks legacy type: moc" tests/scripts/validate-frontmatter.bats
 ```
 
-### Tier 2 smoke
+### Tier 2 smoke — when you have the Claude Code CLI
 
 ```bash
 bash tests/smoke/fresh-install.sh

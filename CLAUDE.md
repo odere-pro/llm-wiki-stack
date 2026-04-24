@@ -34,6 +34,7 @@ If an edit introduces a new concept, add the term to `docs/VOCABULARY.md` with a
 
 ## Local workflows
 
+- `bash tests/install-deps.sh` — install every dev/test tool (brew on macOS, apt on Linux). Idempotent. `--check` reports status, `--dry-run` previews.
+- `bash tests/run-tests.sh` — run Tier 0 + Tier 1 locally. Also accepts `tier0`, `tier1`, `tier2`, or `all`; `--list` prints the commands without running.
 - `scripts/validate-docs.sh` — vocabulary gate. Run before every commit.
-- `bats tests/scripts/` — Tier 1 Bats unit tests. Requires `bats-core` and `jq`.
 - `scripts/verify-ingest.sh example-vault/` — verify the reference vault against the schema.
