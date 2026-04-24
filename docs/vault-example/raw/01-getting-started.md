@@ -23,7 +23,7 @@ Everything you need to go from a fresh plugin install to a verified-green vault.
   /plugin install llm-wiki-stack
   ```
 
-  For update, reinstall, and uninstall steps see [README § Installation](../../README.md#installation).
+  For update, reinstall, and uninstall steps see [README § Installation](../../../README.md#installation).
 
 - Obsidian 1.5+ (optional, but recommended for graph view and Dataview).
 - `jq` installed (required by hook scripts — `brew install jq` on macOS).
