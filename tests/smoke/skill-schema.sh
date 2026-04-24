@@ -3,8 +3,13 @@
 #
 # Runs each Layer 2 skill (ingest, lint, fix, synthesize) against the
 # vault-example fixture and asserts that every output file has:
-#   - valid YAML frontmatter (parseable via `yq`)
+#   - well-formed YAML frontmatter (opens and closes with `---`, keys are
+#     `<word>:` shape)
 #   - a `sources:` field holding either `[]` or a list of `[[wikilinks]]`
+#
+# The two assertion helpers are pure shell + `jq` — no Python. We parse the
+# narrow subset of YAML we actually use (inline arrays and block lists)
+# with awk, matching how scripts/verify-ingest.sh extracts the same field.
 #
 # As with fresh-install.sh, the `claude -p` steps are stubbed until Phase E.
 # The YAML/sources assertions run against the already-committed
@@ -25,37 +30,74 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 0
 fi
 
-# -- Tooling dependency check. ------------------------------------------------
-
-if ! command -v yq >/dev/null 2>&1; then
-  echo "[FAIL] yq not found. Install with: pip install yq  (or: brew install yq)"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "[FAIL] jq not found. Install with: brew install jq  (or: apt install jq)"
   exit 1
 fi
 
-# Detect yq flavor: mikefarah/yq (Go) v4 vs kislyuk/yq (Python wrapper around jq).
-# Python yq accepts `--yaml-output`; Go yq does not.
-YQ_FLAVOR=go
-if yq --yaml-output '.' /dev/null >/dev/null 2>&1; then
-  YQ_FLAVOR=python
-fi
-
-echo "[smoke] yq: $(command -v yq) (flavor: $YQ_FLAVOR)"
 echo "[smoke] claude: $(command -v claude)"
+echo "[smoke] jq:     $(command -v jq)"
 
-# yq_validate <file>   → exit 0 iff the file is valid YAML
-# yq_sources <file>    → print one sources entry per line (empty if missing)
-if [ "$YQ_FLAVOR" = "python" ]; then
-  yq_validate() { yq --yaml-output '.' "$1" >/dev/null 2>&1; }
-  yq_sources() {
-    yq --raw-output '.sources // empty | if type == "array" then .[] else . end' "$1" 2>/dev/null || true
-  }
-else
-  yq_validate() { yq '.' "$1" >/dev/null 2>&1; }
-  yq_sources() {
-    # eval-all so an empty/missing `sources` yields nothing instead of an error
-    yq 'select(.sources != null) | .sources[]' "$1" 2>/dev/null || true
-  }
-fi
+# yaml_frontmatter_ok <file> — exit 0 iff <file>'s frontmatter block is
+# well-formed: opens with `---`, closes with `---`, and every non-blank
+# non-list/continuation line is `<key>: <value>` or `<key>:`. This covers
+# the frontmatter shape the skills emit; it is not a general YAML parser.
+yaml_frontmatter_ok() {
+  local f="$1"
+  awk '
+    BEGIN { in_fm = 0; closed = 0 }
+    NR == 1 && $0 != "---" { print "[yaml_frontmatter_ok] " FILENAME ": missing opening ---"; exit 1 }
+    NR == 1 { in_fm = 1; next }
+    in_fm && /^---$/ { closed = 1; exit }
+    in_fm {
+      # Blank lines OK.
+      if ($0 ~ /^[[:space:]]*$/) next
+      # Continuation of a folded/block scalar (starts with spaces) OK.
+      if ($0 ~ /^[[:space:]]+/) next
+      # List marker at top level would be malformed frontmatter — skip.
+      if ($0 ~ /^-[[:space:]]/) next
+      # Otherwise the line must be `<key>:` or `<key>: <value>`. Split into
+      # two patterns so BSD awk (macOS) accepts the regex syntax.
+      if (!($0 ~ /^[A-Za-z_][A-Za-z0-9_-]*:$/ || \
+            $0 ~ /^[A-Za-z_][A-Za-z0-9_-]*:[[:space:]]/)) {
+        print "[yaml_frontmatter_ok] " FILENAME ": bad line: " $0
+        exit 1
+      }
+    }
+    END {
+      if (!closed) { print "[yaml_frontmatter_ok] " FILENAME ": no closing ---"; exit 1 }
+    }
+  ' "$f"
+}
+
+# sources_entries <file> — print one sources entry per line. Empty output
+# when the field is absent or `[]`. Handles inline (`sources: ["[[A]]"]`)
+# and block (`sources:\n  - "[[A]]"`) forms. Mirrors the parser in
+# scripts/verify-ingest.sh so both stay in sync.
+sources_entries() {
+  local f="$1"
+  awk '
+    /^sources:/ {
+      if ($0 ~ /\[/) {
+        line = $0
+        sub(/^sources:[[:space:]]*\[/, "", line)
+        sub(/\][[:space:]]*$/, "", line)
+        n = split(line, items, ",")
+        for (i = 1; i <= n; i++) {
+          gsub(/^[[:space:]"'\'']+|[[:space:]"'\'']+$/, "", items[i])
+          if (items[i] != "") print items[i]
+        }
+        next
+      }
+      while ((getline line) > 0) {
+        if (line !~ /^[[:space:]]*-/) break
+        gsub(/^[[:space:]]*-[[:space:]]*"?/, "", line)
+        gsub(/"?[[:space:]]*$/, "", line)
+        if (line != "") print line
+      }
+    }
+  ' "$f"
+}
 
 # -- Stage 1: run each skill against the example vault. -----------------------
 
@@ -73,17 +115,13 @@ echo "[smoke] (STUB) run ingest/lint/fix/synthesize skills against $TMP_VAULT"
 
 # -- Stage 2: schema assertions. ----------------------------------------------
 
-# Every wiki page must have valid YAML frontmatter.
+# Every wiki page must have well-formed YAML frontmatter.
 fail=0
 while IFS= read -r f; do
-  # Extract frontmatter between first pair of --- lines.
-  fm_file="$(mktemp)"
-  awk 'NR==1 && /^---$/{n++; next} /^---$/{exit} n{print}' "$f" >"$fm_file"
-  if ! yq_validate "$fm_file"; then
-    echo "[smoke] FAIL: frontmatter not parseable in $f"
+  if ! yaml_frontmatter_ok "$f"; then
+    echo "[smoke] FAIL: frontmatter malformed in $f"
     fail=$((fail + 1))
   fi
-  rm -f "$fm_file"
 done < <(find "$TMP_VAULT/wiki" -name '*.md' -type f)
 
 if [ "$fail" -gt 0 ]; then
@@ -98,11 +136,7 @@ while IFS= read -r f; do
   case "$base" in
     index.md | log.md | dashboard.md | _index.md) continue ;;
   esac
-  # Pull the sources field via yq from the extracted frontmatter.
-  fm_file="$(mktemp)"
-  awk 'NR==1 && /^---$/{n++; next} /^---$/{exit} n{print}' "$f" >"$fm_file"
-  sources=$(yq_sources "$fm_file")
-  rm -f "$fm_file"
+  sources=$(sources_entries "$f")
 
   # Empty or absent sources are allowed on source notes themselves.
   [ -z "$sources" ] && continue
