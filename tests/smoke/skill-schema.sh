@@ -107,11 +107,12 @@ cp -R "$REPO_ROOT/docs/vault-example/." "$TMP_VAULT/"
 echo "[smoke] Scratch vault: $TMP_VAULT"
 
 # STUB: invoke each skill via `claude -p`. Fill in during Phase E.
-#   claude -p /llm-wiki-stack:llm-wiki-ingest --vault "$TMP_VAULT" ...
-#   claude -p /llm-wiki-stack:llm-wiki-lint   --vault "$TMP_VAULT" ...
-#   claude -p /llm-wiki-stack:llm-wiki-fix    --vault "$TMP_VAULT" ...
-#   claude -p /llm-wiki-stack:llm-wiki-synthesize    --vault "$TMP_VAULT" ...
-echo "[smoke] (STUB) run ingest/lint/fix/synthesize skills against $TMP_VAULT"
+#   claude -p /llm-wiki-stack:llm-wiki-ingest    --vault "$TMP_VAULT" ...
+#   claude -p /llm-wiki-stack:llm-wiki-lint      --vault "$TMP_VAULT" ...
+#   claude -p /llm-wiki-stack:llm-wiki-fix       --vault "$TMP_VAULT" ...
+#   claude -p /llm-wiki-stack:llm-wiki-synthesize --vault "$TMP_VAULT" ...
+#   claude -p /llm-wiki-stack:llm-wiki-markdown  --vault "$TMP_VAULT" ...
+echo "[smoke] (STUB) run ingest/lint/fix/synthesize/markdown skills against $TMP_VAULT"
 
 # -- Stage 2: schema assertions. ----------------------------------------------
 
@@ -156,5 +157,14 @@ if [ "$bad" -gt 0 ]; then
   exit 1
 fi
 
-echo "[smoke] PASS: all wiki pages have valid frontmatter and [[wikilink]] sources"
+# -- Stage 3: portable-markdown contract for files under output/. -------------
+#
+# The `llm-wiki-markdown` skill writes here; we audit its output shape with
+# the dedicated verify-output.sh helper. Empty or absent output/ is allowed.
+if ! bash "$REPO_ROOT/scripts/verify-output.sh" "$TMP_VAULT"; then
+  echo "[smoke] FAIL: vault/output/ violates the portable-markdown contract"
+  exit 1
+fi
+
+echo "[smoke] PASS: wiki frontmatter, sources, and output/ contract all valid"
 exit 0
