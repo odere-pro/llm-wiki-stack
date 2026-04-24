@@ -27,9 +27,9 @@ teardown() {
     bash '$REPO_ROOT/scripts/session-start.sh'
   "
 
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"SETUP:"* ]]
-  [[ "$output" == *"/nonexistent/vault/does-not-exist"* ]]
+  assert_success
+  assert_output_contains "SETUP:"
+  assert_output_contains "/nonexistent/vault/does-not-exist"
 }
 
 @test "session-start: prints REMINDER when vault dir exists" {
@@ -42,9 +42,9 @@ teardown() {
     bash '$REPO_ROOT/scripts/session-start.sh'
   "
 
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"REMINDER:"* ]]
-  [[ "$output" == *"$vault_dir"* ]]
+  assert_success
+  assert_output_contains "REMINDER:"
+  assert_output_contains "$vault_dir"
 }
 
 @test "session-start: creates settings.json on first run" {
@@ -54,7 +54,7 @@ teardown() {
     bash '$REPO_ROOT/scripts/session-start.sh'
   "
 
-  [ "$status" -eq 0 ]
+  assert_success
   [ -f "$SETTINGS_TMP" ]
   grep -q '"default_vault_path"' "$SETTINGS_TMP"
 }
