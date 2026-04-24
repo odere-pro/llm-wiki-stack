@@ -1,10 +1,10 @@
 #!/bin/bash
 # PreToolUse: blocks writes to vault/wiki/ missing required frontmatter
 # Usage (CLI): scripts/validate-frontmatter.sh [--target <vault-path>]
-# Default target: vault/
+# Default target: $LLM_WIKI_VAULT (fallback: docs/vault)
 # Runs on macOS (BSD) and Linux (GNU)
 
-VAULT="vault"
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
 TARGET_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -12,6 +12,7 @@ while [ $# -gt 0 ]; do
     *) shift ;;
   esac
 done
+VAULT_NAME=$(basename "$VAULT")
 
 # Returns a plain error message on stdout, or nothing on success
 validate_content() {
@@ -61,7 +62,7 @@ validate_content() {
       local declared_path wiki_relative expected_path
       declared_path=$(echo "$frontmatter" | grep '^path:' | sed 's/^path: *//' | tr -d '"'"'" | xargs)
       if [ -n "$declared_path" ]; then
-        wiki_relative=$(echo "$file_path" | sed 's|.*/vault/wiki/||')
+        wiki_relative=$(echo "$file_path" | sed "s|.*/${VAULT_NAME}/wiki/||")
         expected_path=$(dirname "$wiki_relative")
         [ "$expected_path" = "." ] && expected_path=""
         if [ -n "$expected_path" ] && [ "$declared_path" != "$expected_path" ]; then
@@ -107,7 +108,7 @@ INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.file // empty')
 
 case "$FILE_PATH" in
-  */vault/wiki/*) ;;
+  */${VAULT_NAME}/wiki/*) ;;
   *) exit 0 ;;
 esac
 case "$FILE_PATH" in

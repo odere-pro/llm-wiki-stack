@@ -1,12 +1,16 @@
 #!/bin/bash
 # PostToolUse: after writing a wiki file, check if index.md and _index.md need updating
+# Respects LLM_WIKI_VAULT (default: docs/vault)
 # Outputs a reminder to stdout which Claude sees as hook feedback
+
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+VAULT_NAME=$(basename "$VAULT")
 
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.file // empty')
 
 case "$FILE_PATH" in
-  */vault/wiki/*) ;;
+  */${VAULT_NAME}/wiki/*) ;;
   *) exit 0 ;;
 esac
 case "$FILE_PATH" in
@@ -40,8 +44,8 @@ if [ -z "$TITLE" ] && [ -f "$FILE_PATH" ]; then
   TITLE=$(sed -n '/^---$/,/^---$/{/^title:/{s/^title: *"*//;s/"*$//;p;q;};}' "$FILE_PATH")
 fi
 if [ -n "$TITLE" ]; then
-  PROJECT_DIR=$(echo "$FILE_PATH" | sed 's|/vault/wiki/.*||')
-  INDEX="$PROJECT_DIR/vault/wiki/index.md"
+  PROJECT_DIR=$(echo "$FILE_PATH" | sed "s|/${VAULT_NAME}/wiki/.*||")
+  INDEX="$PROJECT_DIR/${VAULT_NAME}/wiki/index.md"
   if [ -f "$INDEX" ] && ! grep -qF "$TITLE" "$INDEX" 2>/dev/null; then
     REMINDERS="${REMINDERS}Add [[${TITLE}]] to wiki/index.md. "
   fi

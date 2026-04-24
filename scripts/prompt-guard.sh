@@ -1,6 +1,10 @@
 #!/bin/bash
 # UserPromptSubmit: warn about common mistakes in user prompts
+# Respects LLM_WIKI_VAULT (default: docs/vault)
 # Non-blocking — outputs warnings but never blocks the prompt
+
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+VAULT_NAME=$(basename "$VAULT")
 
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
@@ -10,8 +14,8 @@ PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
 WARNINGS=""
 
 # Warn if user asks to edit/modify raw files
-if echo "$PROMPT" | grep -qiE '(edit|modify|change|update|fix|correct)\b.*(vault/raw|raw/|raw source|source file)'; then
-  WARNINGS="${WARNINGS}WARNING: vault/raw/ files are immutable. Corrections belong in wiki pages, not raw sources.\n"
+if echo "$PROMPT" | grep -qiE "(edit|modify|change|update|fix|correct)\b.*(${VAULT_NAME}/raw|raw/|raw source|source file)"; then
+  WARNINGS="${WARNINGS}WARNING: ${VAULT_NAME}/raw/ files are immutable. Corrections belong in wiki pages, not raw sources.\n"
 fi
 
 # Warn if user asks to delete wiki pages

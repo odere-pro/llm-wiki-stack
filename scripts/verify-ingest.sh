@@ -4,7 +4,7 @@
 # Usage: scripts/verify-ingest.sh [--target <vault-path>]
 # Exit 0 = all clean, Exit 1 = issues found
 
-VAULT="vault"
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --target) VAULT="${2%/}"; shift 2 ;;

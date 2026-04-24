@@ -2,12 +2,15 @@
 # PreToolUse: blocks writes to vault/wiki/_sources/ when source_format != text
 # but attachment_path is missing or the referenced file does not exist.
 
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
+VAULT_NAME=$(basename "$VAULT")
+
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.file // empty')
 
 # Only validate source notes
 case "$FILE_PATH" in
-  */vault/wiki/_sources/*.md) ;;
+  */${VAULT_NAME}/wiki/_sources/*.md) ;;
   *) exit 0 ;;
 esac
 

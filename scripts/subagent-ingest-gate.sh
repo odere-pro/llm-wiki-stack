@@ -11,14 +11,23 @@ case "$AGENT_NAME" in
 esac
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
-SCRIPT="$PROJECT_DIR/.claude/scripts/verify-ingest.sh"
-VAULT="$PROJECT_DIR/vault"
+SCRIPT="${CLAUDE_PLUGIN_ROOT}/scripts/verify-ingest.sh"
+
+# Resolve vault: absolute path is used as-is; relative path resolves from project root
+if [ -n "$LLM_WIKI_VAULT" ]; then
+  case "$LLM_WIKI_VAULT" in
+    /*) VAULT="$LLM_WIKI_VAULT" ;;
+    *)  VAULT="$PROJECT_DIR/$LLM_WIKI_VAULT" ;;
+  esac
+else
+  VAULT="$PROJECT_DIR/docs/vault"
+fi
 
 if [ ! -x "$SCRIPT" ] || [ ! -d "$VAULT" ]; then
   exit 0
 fi
 
-OUTPUT=$("$SCRIPT" "$VAULT" 2>&1)
+OUTPUT=$("$SCRIPT" --target "$VAULT" 2>&1)
 EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -ne 0 ]; then

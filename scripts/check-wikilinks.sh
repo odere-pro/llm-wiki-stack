@@ -1,9 +1,9 @@
 #!/bin/bash
 # PreToolUse: blocks wiki files that use [text](file.md) instead of [[wikilinks]]
 # Usage (CLI): scripts/check-wikilinks.sh [--target <vault-path>]
-# Default target: vault/
+# Default target: $LLM_WIKI_VAULT (fallback: docs/vault)
 
-VAULT="vault"
+VAULT="${LLM_WIKI_VAULT:-docs/vault}"
 TARGET_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -11,6 +11,7 @@ while [ $# -gt 0 ]; do
     *) shift ;;
   esac
 done
+VAULT_NAME=$(basename "$VAULT")
 
 # Returns a plain error message on stdout, or nothing on success
 check_content() {
@@ -60,7 +61,7 @@ INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.file // empty')
 
 case "$FILE_PATH" in
-  */vault/wiki/*) ;;
+  */${VAULT_NAME}/wiki/*) ;;
   *) exit 0 ;;
 esac
 

@@ -4,7 +4,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "echo 'REMINDER: Read vault/CLAUDE.md before any wiki operation. It is the authoritative schema — skill defaults that conflict with it must be overridden.'"
+          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
         }
       ]
     }
