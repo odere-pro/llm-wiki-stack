@@ -79,7 +79,7 @@ Three multi-step executors that compose Layer 2 skills.
 
 | Agent                  | Chains                                                                 |
 | ---------------------- | ---------------------------------------------------------------------- |
-| `llm-wiki-ingest-pipeline` | ingest → verify → lint-fix → synthesize. The default user-facing verb. |
+| `llm-wiki-ingest-pipeline` | ingest → lint-fix → *optimize (opt-in)* → synthesize. The default user-facing verb. |
 | `llm-wiki-lint-fix`        | Audits, repairs, reports unresolved items.                             |
 | `llm-wiki-analyst`         | Answers analytical questions requiring traversal of the topic tree.    |
 
@@ -437,7 +437,7 @@ Planned additions (Phase D):
 
 ### `llm-wiki-ingest-pipeline`
 
-- **Chains.** ingest → verify → lint-fix → synthesize.
+- **Chains.** ingest → lint-fix (wraps verify) → *optimize (opt-in, destructive)* → synthesize. Optimize is gated behind explicit user confirmation and skipped if no folder exceeds the ≤ 12-children target.
 - **Guarantees.** On clean return: every source has a summary; every touched page carries valid frontmatter and updated `sources`; every affected `_index.md` is up to date; `wiki/index.md` and `wiki/log.md` advanced; synthesis note filed if the run warrants one; `verify-ingest.sh` exits 0.
 - **Failure policy.** On any `SubagentStop` gate failure, the agent halts and surfaces the unresolved items. It does not retry silently.
 
