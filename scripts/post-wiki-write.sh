@@ -17,7 +17,7 @@ esac
 # Skip index.md, log.md, dashboard.md updates (they are the bookkeeping files)
 BASENAME=$(basename "$FILE_PATH")
 case "$BASENAME" in
-  index.md|log.md|dashboard.md|_index.md) exit 0 ;;
+  index.md | log.md | dashboard.md | _index.md) exit 0 ;;
 esac
 
 REMINDERS=""
@@ -25,7 +25,7 @@ REMINDERS=""
 # Check if this file's folder has an _index.md
 FOLDER=$(dirname "$FILE_PATH")
 case "$FOLDER" in
-  *_sources*|*_synthesis*) ;;
+  *_sources* | *_synthesis*) ;;
   *)
     if [ ! -f "$FOLDER/_index.md" ]; then
       REMINDERS="${REMINDERS}Topic folder $(basename "$FOLDER") has no _index.md — create one. "

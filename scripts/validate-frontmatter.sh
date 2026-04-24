@@ -57,12 +57,12 @@ TYPE=$(echo "$FRONTMATTER" | grep '^type:' | sed 's/^type: *//' | tr -d '"'"'" |
 
 # Type-specific required fields
 case "$TYPE" in
-  source)   REQUIRED="source_type sources created updated status confidence" ;;
-  entity)   REQUIRED="entity_type parent path sources created updated status confidence" ;;
-  concept)  REQUIRED="parent path sources created updated status confidence" ;;
+  source) REQUIRED="source_type sources created updated status confidence" ;;
+  entity) REQUIRED="entity_type parent path sources created updated status confidence" ;;
+  concept) REQUIRED="parent path sources created updated status confidence" ;;
   synthesis) REQUIRED="synthesis_type sources created updated status confidence" ;;
-  index)    REQUIRED="aliases created updated" ;;
-  log)      REQUIRED="created updated" ;;
+  index) REQUIRED="aliases created updated" ;;
+  log) REQUIRED="created updated" ;;
   *)
     echo "{\"decision\":\"block\",\"reason\":\"Unknown type: ${TYPE}. Allowed: source, entity, concept, synthesis, index, log\"}"
     exit 0
@@ -78,7 +78,7 @@ done
 
 # Validate path: field matches actual filesystem location (for types that require path)
 case "$TYPE" in
-  entity|concept|synthesis|index)
+  entity | concept | synthesis | index)
     DECLARED_PATH=$(echo "$FRONTMATTER" | grep '^path:' | sed 's/^path: *//' | tr -d '"'"'" | xargs)
     if [ -n "$DECLARED_PATH" ]; then
       # Derive expected path from file location relative to wiki/

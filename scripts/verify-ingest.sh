@@ -13,9 +13,9 @@ SUPPORTED_SCHEMA_VERSIONS=(1)
 ERRORS=0
 WARNINGS=0
 
-red()    { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
+red() { printf '\033[0;31mERROR: %s\033[0m\n' "$1"; }
 yellow() { printf '\033[0;33mWARN:  %s\033[0m\n' "$1"; }
-green()  { printf '\033[0;32mOK:    %s\033[0m\n' "$1"; }
+green() { printf '\033[0;32mOK:    %s\033[0m\n' "$1"; }
 header() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
 # ──────────────────────────────────────────────
@@ -25,8 +25,8 @@ header "Schema version"
 
 if [ -f "$VAULT_CLAUDE_MD" ]; then
   # Match both `schema_version: 1` and backtick forms like `schema_version: 1`.
-  DECLARED=$(grep -oE '`?schema_version`?:[[:space:]]*`?[0-9]+`?' "$VAULT_CLAUDE_MD" | head -1 \
-              | grep -oE '[0-9]+' | head -1)
+  DECLARED=$(grep -oE '`?schema_version`?:[[:space:]]*`?[0-9]+`?' "$VAULT_CLAUDE_MD" | head -1 |
+    grep -oE '[0-9]+' | head -1)
   if [ -z "$DECLARED" ]; then
     red "$VAULT_CLAUDE_MD declares no schema_version. Add \`schema_version: 1\` near the top."
     ERRORS=$((ERRORS + 1))
@@ -69,7 +69,7 @@ else
       COUNT=$(echo "$LINKS" | grep -cxF "$dup")
       red "Duplicate in index.md: \"$dup\" appears $COUNT times"
       ERRORS=$((ERRORS + 1))
-    done <<< "$DUPES"
+    done <<<"$DUPES"
   else
     LINK_COUNT=$(echo "$LINKS" | grep -c .)
     green "No duplicates in index.md ($LINK_COUNT unique entries)"
@@ -80,7 +80,7 @@ else
     BASENAME=$(basename "$filepath" .md)
     # Skip bookkeeping files
     case "$BASENAME" in
-      index|log|dashboard|_index|.gitkeep) continue ;;
+      index | log | dashboard | _index | .gitkeep) continue ;;
     esac
     # Extract the title from frontmatter
     TITLE=$(sed -n '/^---$/,/^---$/{/^title:/{s/^title: *"*//;s/"*$//;p;q;};}' "$filepath")
@@ -105,7 +105,7 @@ SOURCES_BAD=0
 while IFS= read -r filepath; do
   BASENAME=$(basename "$filepath" .md)
   case "$BASENAME" in
-    index|log|dashboard|_index|.gitkeep) continue ;;
+    index | log | dashboard | _index | .gitkeep) continue ;;
   esac
 
   # Extract frontmatter block
@@ -158,7 +158,7 @@ while IFS= read -r filepath; do
       SOURCES_BAD=$((SOURCES_BAD + 1))
       ERRORS=$((ERRORS + 1))
     fi
-  done <<< "$SOURCES_ENTRIES"
+  done <<<"$SOURCES_ENTRIES"
 done < <(find "$WIKI" -name '*.md' -type f | sort)
 
 if [ "$SOURCES_BAD" -eq 0 ]; then
@@ -255,7 +255,7 @@ while IFS= read -r index_file; do
       yellow "Page \"$title\" in $FOLDER_NAME/ but _index.md has empty children list"
       WARNINGS=$((WARNINGS + 1))
     fi
-  done <<< "$ACTUAL_FILES"
+  done <<<"$ACTUAL_FILES"
 
   # Check: entries in index children but no matching file
   while IFS= read -r child; do
@@ -269,7 +269,7 @@ while IFS= read -r index_file; do
       red "Index lists \"$child\" but folder $FOLDER_NAME/ has no pages"
       ERRORS=$((ERRORS + 1))
     fi
-  done <<< "$INDEX_CHILDREN"
+  done <<<"$INDEX_CHILDREN"
 
   # Check: subdirectories should have corresponding child_indexes entries
   while IFS= read -r subdir; do
@@ -278,7 +278,7 @@ while IFS= read -r index_file; do
       red "Subfolder $FOLDER_NAME/$subdir/ has no _index.md"
       ERRORS=$((ERRORS + 1))
     fi
-  done <<< "$ACTUAL_SUBDIRS"
+  done <<<"$ACTUAL_SUBDIRS"
 
   green "$FOLDER_NAME/_index.md checked"
 
@@ -317,7 +317,7 @@ while IFS= read -r dir; do
   DIRNAME=$(basename "$dir")
   # Skip special folders
   case "$DIRNAME" in
-    _sources|_synthesis) continue ;;
+    _sources | _synthesis) continue ;;
   esac
   if [ ! -f "$dir/_index.md" ]; then
     red "Topic folder $DIRNAME/ has no _index.md"
