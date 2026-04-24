@@ -7,12 +7,21 @@ Everything you need to go from a fresh plugin install to a verified-green vault.
 ## Prerequisites
 
 - Claude Code installed (`claude --version` should work in a terminal).
-- The plugin installed from the marketplace:
+- The plugin installed — remote or local:
 
+  **Remote (marketplace):**
   ```
   /plugin marketplace add odere-pro/llm-wiki-stack
-  /plugin install llm-wiki-stack@llm-wiki-stack
+  /plugin install llm-wiki-stack
   ```
+
+  **Local (contributors / forks):**
+  ```
+  /plugin marketplace add /path/to/llm-wiki-stack
+  /plugin install llm-wiki-stack
+  ```
+
+  For update, reinstall, and uninstall steps see [README § Installation](../../README.md#installation).
 
 - Obsidian 1.5+ (optional, but recommended for graph view and Dataview).
 - `jq` installed (required by hook scripts — `brew install jq` on macOS).

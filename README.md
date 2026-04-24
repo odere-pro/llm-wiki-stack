@@ -61,13 +61,55 @@ The long version lives in [`docs/architecture.md`](./docs/architecture.md).
 
 ## Installation
 
+### Remote (marketplace)
+
 ```
 /plugin marketplace add odere-pro/llm-wiki-stack
-/plugin install llm-wiki-stack@llm-wiki-stack
+/plugin install llm-wiki-stack
 /llm-wiki-stack:llm-wiki
 ```
 
-The third command runs the **onboarding wizard**, which scaffolds a vault in your project by copying `example-vault/`, smoke-tests the install, and prints the next three things to do. See [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md) for the walkthrough.
+### Local (contributors / forks)
+
+```bash
+git clone https://github.com/odere-pro/llm-wiki-stack
+```
+
+Then from a Claude Code session:
+
+```
+/plugin marketplace add /path/to/llm-wiki-stack
+/plugin install llm-wiki-stack
+/llm-wiki-stack:llm-wiki
+```
+
+The third command in either path runs the **onboarding wizard**, which scaffolds a vault in your project by copying `example-vault/`, smoke-tests the install, and prints the next three things to do. See [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md) for the walkthrough.
+
+### Update / reinstall
+
+**Remote:** uninstall and reinstall to pull the latest version.
+
+```
+/plugin uninstall llm-wiki-stack
+/plugin install llm-wiki-stack
+```
+
+**Local:** changes in the source directory take effect on the next Claude Code session — no reinstall needed. If `marketplace.json` or `plugin.json` changed, re-add the marketplace first:
+
+```
+/plugin marketplace remove llm-wiki-stack
+/plugin marketplace add /path/to/llm-wiki-stack
+/plugin uninstall llm-wiki-stack
+/plugin install llm-wiki-stack
+```
+
+### Uninstall
+
+```
+/plugin uninstall llm-wiki-stack
+```
+
+Your vault (`vault/`) is not touched — only the plugin is removed.
 
 ## Operations
 
