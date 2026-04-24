@@ -18,6 +18,11 @@ LLM_WIKI_DEFAULT_VAULT="docs/vault"
 LLM_WIKI_SETTINGS="${LLM_WIKI_SETTINGS_FILE:-.claude/llm-wiki-stack/settings.json}"
 
 resolve_vault() {
+  # Self-heal: ensure settings.json exists on every resolution. SessionStart
+  # is the primary creation path, but it may miss (plugin reinstall mid-session,
+  # resumed sessions). Any hook that resolves the vault also reifies settings.
+  init_vault_settings
+
   # 1. Explicit env var — used as-is (relative or absolute)
   if [ -n "${LLM_WIKI_VAULT:-}" ]; then
     echo "$LLM_WIKI_VAULT"

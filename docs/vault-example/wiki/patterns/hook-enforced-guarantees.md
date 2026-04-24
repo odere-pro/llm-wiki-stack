@@ -1,17 +1,22 @@
 ---
 title: "Hook-Enforced Guarantees"
 type: concept
-aliases: ["Hook-Enforced Guarantees", "hook-enforced", "hook enforcement"]
+aliases: ["Hook-Enforced Guarantees", "hook-enforced-guarantees"]
 parent: "[[Patterns — Index]]"
 path: "patterns"
-sources: ["[[Karpathy LLM Wiki Gist]]", "[[Obsidian Documentation]]"]
-related: ["[[LLM Wiki Pattern]]", "[[Claude Code]]"]
+sources:
+  - "[[Using llm-wiki-stack]]"
+  - "[[Getting Started]]"
+  - "[[Update an Existing Vault]]"
+  - "[[Review, Validate, Fix]]"
+  - "[[Check the Dashboard]]"
+related: ["[[LLM Wiki Pattern]]", "[[Lint-Fix Workflow]]"]
 contradicts: []
 supersedes: []
-depends_on: ["[[LLM Wiki Pattern]]"]
-tags: []
-created: 2026-04-18
-updated: 2026-04-18
+depends_on: []
+tags: ["pattern", "safety"]
+created: 2026-04-24
+updated: 2026-04-24
 update_count: 1
 status: active
 confidence: 0.9
@@ -21,20 +26,21 @@ confidence: 0.9
 
 ## Definition
 
-An approach to making schema invariants structural rather than cultural. Instead of asking the LLM to remember the rules, enforcement lives in tool-call hooks that block violating writes and run verifiers after agent work completes. The LLM discovers the rule by being blocked, not by being reminded.
+Schema invariants and safety properties that live in `PreToolUse` and `SubagentStop` hooks rather than in model prompts or convention. The premise: a model cannot be trusted to consistently follow rules over thousands of writes; a shell script run before every write is far more reliable.
 
 ## Key Principles
 
-- **Pre-write validation.** Frontmatter and wikilink checks run before every `Write` or `Edit`; malformed output never lands on disk.
-- **Post-write reminders.** After every wiki write, a hook prints what still needs to be updated (the folder's `_index.md`, the root index).
-- **Completion gates.** When an agent finishes a multi-step run, a verifier reruns and the agent is blocked from reporting success if the vault still has errors.
-- **Raw immutability.** Any write to `raw/` is rejected at the hook layer — the contamination boundary holds even if the LLM misreads the schema.
+- The hook is the contract. If the hook does not block, the rule is not enforced — period.
+- Hooks are surfaced verbatim. When `validate-frontmatter.sh` blocks a write, the model sees the same error a CLI user would.
+- Hooks form a layered defense: `protect-raw.sh` blocks any write under `raw/`; `validate-frontmatter.sh` blocks malformed frontmatter; `check-wikilinks.sh` blocks plain markdown links where wikilinks are required; `validate-attachments.sh` blocks source notes that reference missing attachment files; `subagent-ingest-gate.sh` and `subagent-lint-gate.sh` abort agent completion if the wiki is left in a broken state.
 
 ## Examples
 
-`llm-wiki-stack` implements this with `PreToolUse`, `PostToolUse`, and `SubagentStop` hooks wired to scripts like `validate-frontmatter.sh`, `protect-raw.sh`, and `verify-ingest.sh`. The pattern applies beyond this stack: any system that can intercept tool calls can enforce the same shape.
+- A user writes a new entity page but forgets `entity_type`; `validate-frontmatter.sh` blocks the write with the missing-field message.
+- An agent finishes ingest but leaves an `_index.md` referencing a missing child; `subagent-ingest-gate.sh` reruns `verify-ingest.sh`, finds the error, and aborts the agent's "done" signal.
+- The `llm-wiki-status` smoke test exercises every hook by issuing known-bad writes and confirming each one is blocked.
 
 ## Related Concepts
 
-- [[LLM Wiki Pattern]] — the pattern this enforcement supports.
-- [[Claude Code]] — the tool-call harness whose hooks this stack relies on.
+- [[LLM Wiki Pattern]] — the pattern this guarantee supports.
+- [[Lint-Fix Workflow]] — the human-in-the-loop layer for what hooks cannot enforce.

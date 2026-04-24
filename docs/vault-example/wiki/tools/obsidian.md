@@ -1,34 +1,40 @@
 ---
 title: "Obsidian"
 type: entity
-entity_type: tool
+entity_type: product
 aliases: ["Obsidian", "obsidian"]
 parent: "[[Tools — Index]]"
 path: "tools"
-sources: ["[[Obsidian Documentation]]"]
-related: ["[[Claude Code]]", "[[Hook-Enforced Guarantees]]"]
-tags: []
-created: 2026-04-18
-updated: 2026-04-18
+sources:
+  - "[[Using llm-wiki-stack]]"
+  - "[[Getting Started]]"
+  - "[[Create a New Vault]]"
+  - "[[Update an Existing Vault]]"
+  - "[[Check the Dashboard]]"
+  - "[[Query the Wiki]]"
+related: ["[[Dataview]]", "[[Claude Code]]", "[[LLM Wiki Pattern]]"]
+tags: ["tool", "markdown-editor"]
+created: 2026-04-24
+updated: 2026-04-24
 update_count: 1
 status: active
-confidence: 1.0
+confidence: 0.9
 ---
 
 # Obsidian
 
 ## Overview
 
-A local-first markdown editor that treats a folder as a vault. Every file in the folder is a note; `[[wikilinks]]` cross-reference notes by filename or `aliases`. A broken link creates a ghost node in the graph view — an invitation to create the missing page.
+Local-first markdown editor that treats a folder as a vault. The target environment for reading and navigating the wiki maintained by `llm-wiki-stack`. Wikilinks, the graph view, Dataview queries, and community plugins like Templater and Web Clipper are first-class to the user experience.
 
 ## Key Facts
 
-- **Storage.** Plain files on disk. No database. Version control works out of the box.
-- **Wikilinks.** Resolved by filename first, then by `aliases` frontmatter. Display text can diverge with `[[Note Title|display]]`.
-- **Frontmatter.** YAML at the top of a file, between `---` fences. Queryable via the Dataview plugin.
-- **Graph view.** Renders every note and link. Color groups and path filters segment the graph by topic.
+- Version 1.5+ is recommended for graph view and plugin compatibility.
+- Wikilink resolution matches filenames or `aliases:` entries — not page titles — so the title must appear as the first entry in `aliases:`.
+- The [[Dataview]] community plugin powers `vault/wiki/dashboard.md`; without it the dashboard renders as empty code blocks.
+- Per-topic graph colors are applied programmatically via the `/llm-wiki-stack:obsidian-graph-colors` skill.
 
 ## Related
 
-- [[Claude Code]] — the harness that edits Obsidian vaults under schema enforcement.
-- [[Hook-Enforced Guarantees]] — the pattern that keeps those edits schema-clean.
+- [[Dataview]] — the query plugin the dashboard depends on.
+- [[Claude Code]] — the host running the plugin that maintains this vault.

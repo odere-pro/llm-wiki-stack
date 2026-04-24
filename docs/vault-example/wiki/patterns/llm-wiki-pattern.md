@@ -1,38 +1,43 @@
 ---
 title: "LLM Wiki Pattern"
 type: concept
-aliases: ["LLM Wiki Pattern", "LLM Wiki", "Karpathy LLM Wiki"]
+aliases: ["LLM Wiki Pattern", "llm-wiki-pattern", "Karpathy's LLM Wiki Pattern"]
 parent: "[[Patterns — Index]]"
 path: "patterns"
-sources: ["[[Karpathy LLM Wiki Gist]]"]
-related: ["[[Hook-Enforced Guarantees]]", "[[Obsidian]]"]
+sources:
+  - "[[Using llm-wiki-stack]]"
+  - "[[Getting Started]]"
+related: ["[[Hook-Enforced Guarantees]]", "[[Entity Distribution Model]]", "[[Obsidian]]", "[[Claude Code]]"]
 contradicts: []
 supersedes: []
 depends_on: []
-tags: []
-created: 2026-04-18
-updated: 2026-04-18
+tags: ["pattern", "knowledge-management"]
+created: 2026-04-24
+updated: 2026-04-24
 update_count: 1
 status: active
-confidence: 1.0
+confidence: 0.8
 ---
 
 # LLM Wiki Pattern
 
 ## Definition
 
-A maintenance pattern for personal knowledge bases where the human curates raw inputs and the LLM derives a structured, provenance-tracked wiki from those inputs. Introduced by Andrej Karpathy ([[Karpathy LLM Wiki Gist]]).
+A research-management pattern: the human curates raw source material; an LLM derives and maintains a structured, cited wiki on top of that material. Provenance is structural — every wiki page links back to the source notes that justify it. Originally articulated by Karpathy.
 
 ## Key Principles
 
-- **Provenance is structural.** Every wiki page cites at least one source in `raw/`. A page without a citation cannot exist.
-- **Organized by topic, not by source.** A single source updates multiple topic pages rather than producing one summary.
-- **Derived, not authoritative.** Contradicting evidence is recorded as a typed relationship — the LLM does not silently overwrite.
+- Two distinct roles: human curates (drops sources into an immutable `raw/`), LLM maintains (writes everything in `wiki/`).
+- Every wiki claim must carry a `[[wikilink]]` to a source note in `wiki/_sources/` — no claim without provenance.
+- Topic-tree organization (folders by topic, not by note type) so a single topic folder holds both entities and concepts.
+- Hand-edits are allowed but discouraged; the LLM workflow enforces invariants that hand-editing tends to break (see [[Entity Distribution Model]]).
 
 ## Examples
 
-The Karpathy gist ([[Karpathy LLM Wiki Gist]]) is the canonical reference. `llm-wiki-stack` implements the pattern as a four-layer stack with hook-enforced invariants — see [[Hook-Enforced Guarantees]].
+- A user drops a PDF transcript into `raw/`; the ingest pipeline writes a source summary, extracts mentioned people / organizations / concepts into typed pages under the right topic folder, and updates per-folder MOCs.
+- A query against the wiki returns prose with inline `[[wikilinks]]`; the user audits each cited page's `sources:` and `confidence:` to judge the answer's strength.
 
 ## Related Concepts
 
-- [[Hook-Enforced Guarantees]] — how this stack enforces the pattern's invariants.
+- [[Hook-Enforced Guarantees]] — the mechanism that keeps the pattern safe from model drift.
+- [[Entity Distribution Model]] — the DRY rule that prevents near-duplicate pages.

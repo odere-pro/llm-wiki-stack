@@ -7,21 +7,19 @@ path: "patterns"
 children:
   - "[[LLM Wiki Pattern]]"
   - "[[Hook-Enforced Guarantees]]"
+  - "[[Entity Distribution Model]]"
 child_indexes: []
-tags: []
-created: 2026-04-18
-updated: 2026-04-18
+tags: ["patterns"]
+created: 2026-04-24
+updated: 2026-04-24
 ---
 
 # Patterns — Index
 
-Knowledge-base patterns that `llm-wiki-stack` implements or enforces.
+Reusable design patterns applied by the `llm-wiki-stack` plugin.
 
 ## Pages
 
-- [[LLM Wiki Pattern]] — Karpathy's pattern for LLM-maintained personal wikis; provenance-driven, topic-organized, derived-not-authoritative.
-- [[Hook-Enforced Guarantees]] — the four-layer stack's approach to enforcing schema invariants at the tool-call boundary rather than relying on model discipline.
-
-## Subtopics
-
-None at this depth.
+- [[LLM Wiki Pattern]] — Karpathy's pattern: human curates sources, LLM maintains the derived wiki with cited provenance.
+- [[Hook-Enforced Guarantees]] — invariants live in `PreToolUse` / `SubagentStop` hooks, not in model discipline.
+- [[Entity Distribution Model]] — one source rewrites many pages; DRY over duplication.

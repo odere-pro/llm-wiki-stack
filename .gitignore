@@ -26,9 +26,9 @@ tests/test_helper/bats-assert/
 tests/test_helper/bats-support/
 tests/test_helper/bats-file/
 
-# Vault output scratch space (user projects)
+# Vault output scratch space (user projects and the reference demo)
 vault/output/
-vault-example/output/
+**/vault-example/output/
 
 # Large binary assets in raw/
 **/raw/assets/*.pdf
