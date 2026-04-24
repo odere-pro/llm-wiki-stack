@@ -53,20 +53,20 @@ Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY
 - **Plugin-authored (`llm-wiki-*` + `obsidian-graph-colors`).** Original work by this plugin. The `obsidian-` prefix marks the target (Obsidian's graph plugin API), not third-party provenance.
 - **Third-party MIT (`obsidian-markdown`, `obsidian-bases`, `obsidian-cli`).** From `kepano/obsidian-skills`. Retained under original name and license; attribution preserved.
 
-| Skill                  | Provenance        | Responsibility                                                           |
-| ---------------------- | ----------------- | ------------------------------------------------------------------------ |
-| `llm-wiki`             | plugin-authored   | Onboarding wizard. Scaffolds `vault/` from `example-vault/` and orients. |
-| `llm-wiki-ingest`      | plugin-authored   | Ingests one or more sources into the wiki.                               |
-| `llm-wiki-query`       | plugin-authored   | Answers a query from the wiki with `[[wikilink]]` citations.             |
-| `llm-wiki-lint`        | plugin-authored   | Audits the wiki for structural and provenance drift.                     |
-| `llm-wiki-fix`         | plugin-authored   | Auto-repairs what lint reports.                                          |
-| `llm-wiki-status`      | plugin-authored   | One-command health check; exercises every hook path.                     |
-| `llm-wiki-synthesize`  | plugin-authored   | Writes a cross-topic synthesis note.                                     |
-| `llm-wiki-index`       | plugin-authored   | Generates or refreshes the vault MOC at `wiki/index.md`.                 |
-| `obsidian-graph-colors` | plugin-authored  | Applies per-topic colors to Obsidian's graph view.                       |
-| `obsidian-markdown`    | MIT, kepano       | Obsidian-flavored markdown reference.                                    |
-| `obsidian-bases`       | MIT, kepano       | Obsidian Bases (database) reference.                                     |
-| `obsidian-cli`         | MIT, kepano       | Obsidian CLI reference.                                                  |
+| Skill                   | Provenance      | Responsibility                                                           |
+| ----------------------- | --------------- | ------------------------------------------------------------------------ |
+| `llm-wiki`              | plugin-authored | Onboarding wizard. Scaffolds `vault/` from `example-vault/` and orients. |
+| `llm-wiki-ingest`       | plugin-authored | Ingests one or more sources into the wiki.                               |
+| `llm-wiki-query`        | plugin-authored | Answers a query from the wiki with `[[wikilink]]` citations.             |
+| `llm-wiki-lint`         | plugin-authored | Audits the wiki for structural and provenance drift.                     |
+| `llm-wiki-fix`          | plugin-authored | Auto-repairs what lint reports.                                          |
+| `llm-wiki-status`       | plugin-authored | One-command health check; exercises every hook path.                     |
+| `llm-wiki-synthesize`   | plugin-authored | Writes a cross-topic synthesis note.                                     |
+| `llm-wiki-index`        | plugin-authored | Generates or refreshes the vault MOC at `wiki/index.md`.                 |
+| `obsidian-graph-colors` | plugin-authored | Applies per-topic colors to Obsidian's graph view.                       |
+| `obsidian-markdown`     | MIT, kepano     | Obsidian-flavored markdown reference.                                    |
+| `obsidian-bases`        | MIT, kepano     | Obsidian Bases (database) reference.                                     |
+| `obsidian-cli`          | MIT, kepano     | Obsidian CLI reference.                                                  |
 
 - **Input.** User invocation; schema at `vault/CLAUDE.md`.
 - **Output.** Writes to `wiki/` (or its sub-paths) and terminal reports.
@@ -77,11 +77,11 @@ Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY
 
 Three multi-step executors that compose Layer 2 skills.
 
-| Agent                  | Chains                                                                 |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `llm-wiki-ingest-pipeline` | ingest → lint-fix → *optimize (opt-in)* → synthesize. The default user-facing verb. |
-| `llm-wiki-lint-fix`        | Audits, repairs, reports unresolved items.                             |
-| `llm-wiki-analyst`         | Answers analytical questions requiring traversal of the topic tree.    |
+| Agent                      | Chains                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `llm-wiki-ingest-pipeline` | ingest → lint-fix → _optimize (opt-in)_ → synthesize. The default user-facing verb. |
+| `llm-wiki-lint-fix`        | Audits, repairs, reports unresolved items.                                          |
+| `llm-wiki-analyst`         | Answers analytical questions requiring traversal of the topic tree.                 |
 
 - **Input.** User invocation; schema.
 - **Output.** Agent reports aggregating per-skill output; wiki writes via the chained skills.
@@ -154,38 +154,38 @@ Files in `vault/output/` are plain markdown and carry no frontmatter.
 
 ### Field registry
 
-| Field             | Type             | Required on                        | Constraints                                                                                  |
-| ----------------- | ---------------- | ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| `title`           | string           | all                                | Title Case. First entry of `aliases` must match.                                             |
-| `type`            | enum             | all                                | One of the six allowed values.                                                               |
-| `aliases`         | list\<string\>   | all                                | Must include `title` as the first entry. Add display variants for wikilink resolution.       |
-| `parent`          | wikilink         | all except vault MOC               | `"[[Parent Map Title]]"`.                                                                    |
-| `path`            | string           | all wiki pages                     | Folder path relative to `wiki/`. Empty string for root.                                      |
-| `sources`         | list\<wikilink\> | entity, concept, synthesis         | Every item is `"[[source-note]]"`. Plain strings are a lint error.                           |
-| `related`         | list\<wikilink\> | entity, concept                    | Symmetric relation; lint repairs drift.                                                      |
-| `contradicts`     | list\<wikilink\> | concept                            | Typed relation.                                                                              |
-| `supersedes`      | list\<wikilink\> | concept                            | Typed relation.                                                                              |
-| `depends_on`      | list\<wikilink\> | concept                            | Typed relation.                                                                              |
-| `children`        | list\<wikilink\> | index                              | Every wiki page in this folder, by title.                                                    |
+| Field             | Type             | Required on                        | Constraints                                                                                                              |
+| ----------------- | ---------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `title`           | string           | all                                | Title Case. First entry of `aliases` must match.                                                                         |
+| `type`            | enum             | all                                | One of the six allowed values.                                                                                           |
+| `aliases`         | list\<string\>   | all                                | Must include `title` as the first entry. Add display variants for wikilink resolution.                                   |
+| `parent`          | wikilink         | all except vault MOC               | `"[[Parent Map Title]]"`.                                                                                                |
+| `path`            | string           | all wiki pages                     | Folder path relative to `wiki/`. Empty string for root.                                                                  |
+| `sources`         | list\<wikilink\> | entity, concept, synthesis         | Every item is `"[[source-note]]"`. Plain strings are a lint error.                                                       |
+| `related`         | list\<wikilink\> | entity, concept                    | Symmetric relation; lint repairs drift.                                                                                  |
+| `contradicts`     | list\<wikilink\> | concept                            | Typed relation.                                                                                                          |
+| `supersedes`      | list\<wikilink\> | concept                            | Typed relation.                                                                                                          |
+| `depends_on`      | list\<wikilink\> | concept                            | Typed relation.                                                                                                          |
+| `children`        | list\<wikilink\> | index                              | Every wiki page in this folder, by title.                                                                                |
 | `child_indexes`   | list\<wikilink\> | index                              | Every subfolder's per-folder MOC. _(Field name retained from schema_version 1; renamed from `child_mocs` at that time.)_ |
-| `scope`           | list\<wikilink\> | synthesis                          | The pages the synthesis covers.                                                              |
-| `synthesis_type`  | enum             | synthesis                          | `comparison`, `theme`, `contradiction`, `gap`, `timeline`.                                   |
-| `source_type`     | enum             | source                             | `article`, `paper`, `policy`, `transcript`, `book`, `video`, `podcast`, `manual`.            |
-| `source_format`   | enum             | source                             | `text`, `image`. Defaults to `text`. Non-text requires `attachment_path` and `extracted_at`. |
-| `attachment_path` | string           | source (non-text)                  | Path under `vault/raw/assets/`.                                                              |
-| `extracted_at`    | date             | source (non-text)                  | `YYYY-MM-DD`.                                                                                |
-| `url`             | string           | source                             | Canonical URL if the source is online.                                                       |
-| `author`          | string           | source                             | —                                                                                            |
-| `publisher`       | string           | source                             | —                                                                                            |
-| `date_published`  | date             | source                             | `YYYY-MM-DD`.                                                                                |
-| `date_ingested`   | date             | source                             | `YYYY-MM-DD`.                                                                                |
-| `entity_type`     | enum             | entity                             | `person`, `organization`, `product`, `tool`, `service`, `standard`, `place`.                 |
-| `tags`            | list\<string\>   | all                                | Free-form; Obsidian tag syntax compatible.                                                   |
-| `created`         | date             | all                                | `YYYY-MM-DD`.                                                                                |
-| `updated`         | date             | all                                | `YYYY-MM-DD`. Advanced on every write.                                                       |
-| `update_count`    | integer          | entity, concept                    | Incremented on every ingest pass that touches the page.                                      |
-| `status`          | enum             | all                                | `active`, `stale`, `superseded`, `draft`. Logs also use `active`.                            |
-| `confidence`      | float            | entity, concept, synthesis, source | `[0.0, 1.0]`. Confidence discipline rules in §14.                                            |
+| `scope`           | list\<wikilink\> | synthesis                          | The pages the synthesis covers.                                                                                          |
+| `synthesis_type`  | enum             | synthesis                          | `comparison`, `theme`, `contradiction`, `gap`, `timeline`.                                                               |
+| `source_type`     | enum             | source                             | `article`, `paper`, `policy`, `transcript`, `book`, `video`, `podcast`, `manual`.                                        |
+| `source_format`   | enum             | source                             | `text`, `image`. Defaults to `text`. Non-text requires `attachment_path` and `extracted_at`.                             |
+| `attachment_path` | string           | source (non-text)                  | Path under `vault/raw/assets/`.                                                                                          |
+| `extracted_at`    | date             | source (non-text)                  | `YYYY-MM-DD`.                                                                                                            |
+| `url`             | string           | source                             | Canonical URL if the source is online.                                                                                   |
+| `author`          | string           | source                             | —                                                                                                                        |
+| `publisher`       | string           | source                             | —                                                                                                                        |
+| `date_published`  | date             | source                             | `YYYY-MM-DD`.                                                                                                            |
+| `date_ingested`   | date             | source                             | `YYYY-MM-DD`.                                                                                                            |
+| `entity_type`     | enum             | entity                             | `person`, `organization`, `product`, `tool`, `service`, `standard`, `place`.                                             |
+| `tags`            | list\<string\>   | all                                | Free-form; Obsidian tag syntax compatible.                                                                               |
+| `created`         | date             | all                                | `YYYY-MM-DD`.                                                                                                            |
+| `updated`         | date             | all                                | `YYYY-MM-DD`. Advanced on every write.                                                                                   |
+| `update_count`    | integer          | entity, concept                    | Incremented on every ingest pass that touches the page.                                                                  |
+| `status`          | enum             | all                                | `active`, `stale`, `superseded`, `draft`. Logs also use `active`.                                                        |
+| `confidence`      | float            | entity, concept, synthesis, source | `[0.0, 1.0]`. Confidence discipline rules in §14.                                                                        |
 
 ### Canonical examples per `type`
 
@@ -437,7 +437,7 @@ Planned additions (Phase D):
 
 ### `llm-wiki-ingest-pipeline`
 
-- **Chains.** ingest → lint-fix (wraps verify) → *optimize (opt-in, destructive)* → synthesize. Optimize is gated behind explicit user confirmation and skipped if no folder exceeds the ≤ 12-children target.
+- **Chains.** ingest → lint-fix (wraps verify) → _optimize (opt-in, destructive)_ → synthesize. Optimize is gated behind explicit user confirmation and skipped if no folder exceeds the ≤ 12-children target.
 - **Guarantees.** On clean return: every source has a summary; every touched page carries valid frontmatter and updated `sources`; every affected `_index.md` is up to date; `wiki/index.md` and `wiki/log.md` advanced; synthesis note filed if the run warrants one; `verify-ingest.sh` exits 0.
 - **Failure policy.** On any `SubagentStop` gate failure, the agent halts and surfaces the unresolved items. It does not retry silently.
 
