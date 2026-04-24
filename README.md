@@ -6,7 +6,18 @@
 [![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](./CHANGELOG.md)
 [![Claude Code plugin](https://img.shields.io/badge/claude%20code-plugin-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code/plugins)
 
-<!-- Banner: drop a 1280×640 SVG or PNG at docs/banner.svg when ready -->
+<!-- TODO(SEO, gap-3): create docs/banner.svg (1280×640). Social share cards
+     (Twitter, LinkedIn, Slack unfurls, GitHub OG image) fall back to GitHub's
+     auto-generated card without one. Depict the four-layer stack.
+     Once the asset exists, replace this comment with:
+     `![llm-wiki-stack banner](./docs/banner.svg)` -->
+
+<!-- TODO(SEO, gap-6): capture a screenshot or GIF of the plugin in action
+     (e.g. split-screen of Obsidian graph view with the plugin maintaining
+     indexes, plus a Claude Code session running
+     `/llm-wiki-stack:llm-wiki-ingest-pipeline`). Place under `docs/assets/`
+     and reference it here above "What it is" to raise click-through on
+     shared links. -->
 
 ## What it is
 
@@ -86,23 +97,23 @@ Three threats, one unenforceable boundary.
 
 Start with whichever doc matches your question:
 
-| Doc                                                                                      | Purpose                                                                                                    |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md)                                       | Reproducibility-grade system spec. Every contract an implementer needs.                                    |
-| [`docs/VOCABULARY.md`](./docs/VOCABULARY.md)                                             | Canonical term list. Technical vs. discoverability registers; banned strings; enforced by validate-docs.sh. |
-| [`docs/architecture.md`](./docs/architecture.md)                                         | Four-layer model explained in prose.                                                                        |
-| [`docs/security.md`](./docs/security.md)                                                 | Threat model, known limits, responsible-disclosure process.                                                |
-| [`docs/llm-wiki/index.md`](./docs/llm-wiki/index.md)                                     | User-facing entry point. Links out to the seven step-by-step guides.                                       |
-| [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md)           | Day 1 → Day 7 → Day 30 walkthrough.                                                                        |
-| [`docs/llm-wiki/02-create-new-knowledge-base.md`](./docs/llm-wiki/02-create-new-knowledge-base.md) | Scaffold a vault from the example.                                                                         |
-| [`docs/llm-wiki/03-update-existing.md`](./docs/llm-wiki/03-update-existing.md)           | Add sources, images, and batches.                                                                          |
-| [`docs/llm-wiki/04-review-validate-fix.md`](./docs/llm-wiki/04-review-validate-fix.md)   | Four levels of review — from spot-check to auto-repair.                                                    |
-| [`docs/llm-wiki/05-export-outputs.md`](./docs/llm-wiki/05-export-outputs.md)             | Compile reports, briefs, and ADRs from the wiki.                                                           |
-| [`docs/llm-wiki/06-check-the-dashboard.md`](./docs/llm-wiki/06-check-the-dashboard.md)   | The Dataview dashboard and what it tells you.                                                              |
-| [`docs/llm-wiki/07-query-the-wiki.md`](./docs/llm-wiki/07-query-the-wiki.md)             | Query and analyst-mode patterns.                                                                           |
-| [`tests/README.md`](./tests/README.md)                                                   | Test harness — tiers, fixtures, smoke, local runs.                                                         |
-| [`CHANGELOG.md`](./CHANGELOG.md)                                                         | Release log.                                                                                               |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md)                                                   | Contribution guide.                                                                                        |
+| Doc                                                                                                | Purpose                                                                                                     |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [`docs/SPECIFICATION.md`](./docs/SPECIFICATION.md)                                                 | Reproducibility-grade system spec. Every contract an implementer needs.                                     |
+| [`docs/VOCABULARY.md`](./docs/VOCABULARY.md)                                                       | Canonical term list. Technical vs. discoverability registers; banned strings; enforced by validate-docs.sh. |
+| [`docs/architecture.md`](./docs/architecture.md)                                                   | Four-layer model explained in prose.                                                                        |
+| [`docs/security.md`](./docs/security.md)                                                           | Threat model, known limits, responsible-disclosure process.                                                 |
+| [`docs/llm-wiki/index.md`](./docs/llm-wiki/index.md)                                               | User-facing entry point. Links out to the seven step-by-step guides.                                        |
+| [`docs/llm-wiki/01-getting-started.md`](./docs/llm-wiki/01-getting-started.md)                     | Day 1 → Day 7 → Day 30 walkthrough.                                                                         |
+| [`docs/llm-wiki/02-create-new-knowledge-base.md`](./docs/llm-wiki/02-create-new-knowledge-base.md) | Scaffold a vault from the example.                                                                          |
+| [`docs/llm-wiki/03-update-existing.md`](./docs/llm-wiki/03-update-existing.md)                     | Add sources, images, and batches.                                                                           |
+| [`docs/llm-wiki/04-review-validate-fix.md`](./docs/llm-wiki/04-review-validate-fix.md)             | Four levels of review — from spot-check to auto-repair.                                                     |
+| [`docs/llm-wiki/05-export-outputs.md`](./docs/llm-wiki/05-export-outputs.md)                       | Compile reports, briefs, and ADRs from the wiki.                                                            |
+| [`docs/llm-wiki/06-check-the-dashboard.md`](./docs/llm-wiki/06-check-the-dashboard.md)             | The Dataview dashboard and what it tells you.                                                               |
+| [`docs/llm-wiki/07-query-the-wiki.md`](./docs/llm-wiki/07-query-the-wiki.md)                       | Query and analyst-mode patterns.                                                                            |
+| [`tests/README.md`](./tests/README.md)                                                             | Test harness — tiers, fixtures, smoke, local runs.                                                          |
+| [`CHANGELOG.md`](./CHANGELOG.md)                                                                   | Release log.                                                                                                |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md)                                                             | Contribution guide.                                                                                         |
 
 ## Credits
 
