@@ -75,7 +75,7 @@ The plugin's structure. Contracts in `/SPEC.md`.
 | four-layer stack        | The architecture. Four layers, each catching a different class of failure.                     |
 | Layer 1 — Data          | The vault: raw content, wiki, vault schema. Passive — holds the material.                      |
 | Layer 2 — Skills        | Single-responsibility slash commands. Thirteen ship.                                           |
-| Layer 3 — Agents        | Multi-step executors composing skills. Three ship.                                             |
+| Layer 3 — Agents        | Multi-step executors composing skills. Five ship: orchestrator, ingest, curator, analyst, polish. |
 | Layer 4 — Orchestration | Hooks, scripts, rules. Enforce the schema at every tool call.                                  |
 | skill                   | A capability under `skills/`. Entry point is `/llm-wiki-stack:<name>`.                         |
 | agent                   | A multi-step executor under `agents/`. Chains skills; owns completion gates.                   |
