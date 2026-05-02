@@ -123,11 +123,11 @@ Skills fall into three provenance groups, reflected in `NOTICE` and `THIRD_PARTY
 
 ### Layer 3 — Agents
 
-Three multi-step executors that compose Layer 2 skills.
+Five multi-step executors that compose Layer 2 skills.
 
 | Agent                                  | Chains                                                                                              |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `llm-wiki-stack-orchestrator-agent`    | Probes vault state and dispatches to one of the four specialists below. The user-facing entry.     |
+| `llm-wiki-stack-orchestrator-agent`    | Probes vault state and dispatches to the wizard skill (`llm-wiki`) or one of three specialists (`ingest`, `curator`, `analyst`). The polish agent runs as a separate post-step after `ingest` or `curator` returns. The user-facing entry. |
 | `llm-wiki-stack-ingest-agent`          | ingest → curator → _optimize (opt-in)_ → synthesize. Invoked by the orchestrator on pending sources. |
 | `llm-wiki-stack-curator-agent`         | Audits, auto-repairs, gates judgment fixes behind plans, reports unresolved items.                  |
 | `llm-wiki-stack-analyst-agent`         | Answers analytical questions requiring traversal of the topic tree (5 modes: query, dashboard, compile, extract, challenge). |
@@ -155,7 +155,7 @@ llm-wiki-stack/                         # plugin source (installed to the user's
 │   ├── plugin.json                     # product version, description, keywords
 │   └── marketplace.json                # same-repo marketplace definition
 ├── skills/                             # Layer 2 (13 skills)
-├── agents/                             # Layer 3 (3 agents)
+├── agents/                             # Layer 3 (5 agents)
 ├── hooks/
 │   └── hooks.json                      # Layer 4 hook wiring
 ├── scripts/                            # Layer 4 hook implementations

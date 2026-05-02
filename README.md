@@ -3,7 +3,7 @@
 > Karpathy's LLM Wiki, shipped as a Claude Code plugin — four layers, hook-enforced.
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)](./CHANGELOG.md)
 [![Claude Code plugin](https://img.shields.io/badge/claude%20code-plugin-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code/plugins)
 
 <!-- TODO(SEO, gap-3): create docs/banner.svg (1280×640). Social share cards
@@ -53,7 +53,7 @@ Every other Claude-Code plugin is a toolbox. This one is a four-layer architectu
 Four layers. Each one catches a different class of failure.
 
 - **Layer 1 — Data** — `docs/vault-example/` with an immutable `raw/` and an LLM-maintained `wiki/`, governed by the schema in [`docs/vault-example/CLAUDE.md`](./docs/vault-example/CLAUDE.md).
-- **Layer 2 — Skills** — 12 single-responsibility capabilities in [`skills/`](./skills/): `llm-wiki` (onboarding), `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`, `llm-wiki-fix`, `llm-wiki-status`, `llm-wiki-synthesize`, `llm-wiki-index`, `obsidian-graph-colors`, `obsidian-markdown`, `obsidian-bases`, `obsidian-cli`.
+- **Layer 2 — Skills** — 13 single-responsibility capabilities in [`skills/`](./skills/): `llm-wiki` (onboarding), `llm-wiki-ingest`, `llm-wiki-query`, `llm-wiki-lint`, `llm-wiki-fix`, `llm-wiki-status`, `llm-wiki-synthesize`, `llm-wiki-index`, `llm-wiki-markdown`, `obsidian-graph-colors`, `obsidian-markdown`, `obsidian-bases`, `obsidian-cli`.
 - **Layer 3 — Agents** — 5 multi-step executors in [`agents/`](./agents/): `llm-wiki-stack-orchestrator-agent` (entry), `llm-wiki-stack-ingest-agent`, `llm-wiki-stack-curator-agent`, `llm-wiki-stack-analyst-agent`, `llm-wiki-stack-polish-agent` (tail-of-write Obsidian-side refresh).
 - **Layer 4 — Orchestration** — hooks wired in [`hooks/hooks.json`](./hooks/hooks.json), scripts in [`scripts/`](./scripts/), path-scoped rules in [`rules/`](./rules/).
 
