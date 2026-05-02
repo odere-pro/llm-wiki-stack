@@ -29,7 +29,7 @@ The Claude Code plugin that implements the [[LLM Wiki Pattern]] on top of an [[O
 
 ## Key Facts
 
-- Default verb: `/llm-wiki-stack:llm-wiki-ingest-pipeline` — ingest, lint-fix, optional synthesis in one command.
+- Default verb: `/llm-wiki-stack:llm-wiki-stack-ingest-agent` — ingest, lint-fix, optional synthesis in one command.
 - Onboarding verb: `/llm-wiki-stack:llm-wiki` — scaffolds `vault/` and writes the per-project `vault/CLAUDE.md` schema.
 - Health check: `/llm-wiki-stack:llm-wiki-status` — exercises every hook path and reports green/red per path.
 - `vault/CLAUDE.md` is the authoritative schema; it wins over any skill default that conflicts.
