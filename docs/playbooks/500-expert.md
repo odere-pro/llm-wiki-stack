@@ -52,7 +52,7 @@ Layer 2 only — a new skill `llm-wiki-pdf-export` reading from `wiki/` and writ
 
 The canonical reference: [`skills/llm-wiki-lint/SKILL.md`](../../skills/llm-wiki-lint/SKILL.md). Read it before writing your own — it shows the description style, the When-to-invoke / Reading-contract / Writing-contract sections, and the spec anchors.
 
-> **Lab.** Build `llm-wiki-export-csv` — a skill that lists every entity in the vault as a CSV row with `title,path,sources_count,confidence`.
+> **Lab.** Build `llm-wiki-export-csv` — a skill that lists every entity in the vault as a CSV row with `title,path,sources_count,confidence`. (Slash-command examples below use `/your-plugin:` rather than `/llm-wiki-stack:` because the example skill doesn't ship with this plugin — drop in your own plugin namespace when you adapt it.)
 >
 > **Step 1.** Create the skill directory:
 >
@@ -71,7 +71,7 @@ The canonical reference: [`skills/llm-wiki-lint/SKILL.md`](../../skills/llm-wiki
 >   title,path,sources_count,confidence. Read-only on the vault; writes
 >   exactly one file under vault/output/. Trigger when the user says
 >   "export entities to CSV", "give me a CSV of the wiki", or invokes
->   /llm-wiki-stack:llm-wiki-export-csv directly.
+>   /your-plugin:llm-wiki-export-csv directly.
 > allowed-tools: Read Glob Grep Bash Write
 > ---
 >
@@ -107,7 +107,7 @@ The canonical reference: [`skills/llm-wiki-lint/SKILL.md`](../../skills/llm-wiki
 > **Step 4.** Use the skill:
 >
 > ```text
-> /llm-wiki-stack:llm-wiki-export-csv
+> /your-plugin:llm-wiki-export-csv
 > ```
 >
 > The skill produces `vault/output/entities.csv`.
