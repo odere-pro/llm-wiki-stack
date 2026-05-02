@@ -4,6 +4,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-05-02
+
+Top-level orchestrator and four-layer DX retrofit. Single `/llm-wiki-stack:wiki` command replaces the per-skill chain users had to remember; vault state now drives dispatch automatically. ADRs in `docs/adr/` capture the rationale; the migration map is in `docs/llm-wiki/migration-0.2.md`.
+
+### Added
+
+- **`commands/wiki.md`** (`/llm-wiki-stack:wiki`) — top-level entry point. Probes vault state and dispatches to the right specialist (init wizard, ingest, curator, or analyst). One verb instead of a remembered chain.
+- **`commands/wiki-doctor.md`** (`/llm-wiki-stack:wiki-doctor`) — environment health check. Wraps the new `scripts/doctor.sh` with exit codes 0–5 (vault path, schema, raw/wiki layout, hook executability, vocab drift). Tier 1 Bats coverage in `tests/scripts/doctor.bats`.
+- **`agents/llm-wiki-stack-orchestrator-agent.md`** — Layer 4 dispatcher. `user-invocable: true`. Owns vault state probing; specialists trust its payload and never re-probe.
+- **`agents/llm-wiki-stack-polish-agent.md`** — tail-of-write specialist. Centralises graph colors, vault-MOC refresh, and per-folder `_index.md` consistency. Idempotent; runs after every successful ingest or curator pass. Removes the "I have to switch to Obsidian and refresh the graph" step. See [`docs/llm-wiki/obsidian-experience.md`](docs/llm-wiki/obsidian-experience.md).
+- **Repository governance parity.** Root `SPEC.md` (moved from `docs/SPECIFICATION.md`), root `SECURITY.md`, root `SUPPORT.md`, `docs/adr/` with three seed ADRs, `docs/plan/` with the retrofit plan.
+- **`NEXT_STEP:` hand-off line** in the `llm-wiki` wizard skill — the orchestrator parses it to chain directly into ingest when `raw/` has pending files.
+
+### Changed
+
+- **Vocabulary changes — agent rename.** Three Layer 3 agents renamed to the `{plugin-name}-{role}-agent` convention. Hard rename, no shims; pre-1.0 plugin, low back-compat cost. See `docs/adr/ADR-0002-agent-naming-convention.md` for the rationale.
+  - `llm-wiki-ingest-pipeline` → `llm-wiki-stack-ingest-agent`
+  - `llm-wiki-lint-fix` → `llm-wiki-stack-curator-agent` (verb upgrade — the agent already gates judgment fixes behind plans, which is curation, not just linting)
+  - `llm-wiki-analyst` → `llm-wiki-stack-analyst-agent`
+- **`/SPEC.md` location.** Specification moved from `docs/SPECIFICATION.md` to root `/SPEC.md` for parity with standard plugin layout. A one-line stub remains at the old path through `0.2.x`; removed in `0.3.0`.
+- **Default verb.** `/llm-wiki-stack:wiki` replaces the old per-skill chain (the pipeline agent, formerly named `llm-wiki-ingest-pipeline`, now `llm-wiki-stack-ingest-agent`) as the default user verb. The pipeline agent remains user-invocable for power users and scripting.
+- **`scripts/validate-docs.sh`** — extends the namespace resolver to recognize `commands/<name>.md` (in addition to `skills/<name>/` and `agents/<name>.md`); adds the three retired agent names to the banned-string list (allowlisted in CHANGELOG, ADRs, plan, and migration doc).
+- **Documentation surface.** README quick-start, `docs/architecture.md`, `docs/getting-started.md`, `docs/security.md`, `SECURITY.md` updated to use the new agent names and the `/llm-wiki-stack:wiki` entry point.
+
+### Migration
+
+Users with scripts pinned to the old agent names: see `docs/llm-wiki/migration-0.2.md` for the rename table and search-and-replace guidance. Vaults themselves are unchanged — `schema_version: 1` continues to be supported; only plugin-side identifiers moved.
+
+## [Earlier — pre-0.2.0]
+
 ### Changed
 
 - **Skill rename (clean-room rewrite).** The eight adapted skills have been
